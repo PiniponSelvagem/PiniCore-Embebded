@@ -24,6 +24,8 @@
 
     #ifdef ARDUINO_AVR_MEGA2560
         #define LED_BUILTIN     13
+    #else
+        #define LED_BUILTIN     2       // ESP32-DEV (30 pin)
     #endif
 #endif
 
