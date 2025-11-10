@@ -6,9 +6,6 @@
 #include <stdio.h>
 #include <HardwareSerial.h>
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-
 /**
  * @brief   Printf for boards that do not have Serial.printf implemented
  */

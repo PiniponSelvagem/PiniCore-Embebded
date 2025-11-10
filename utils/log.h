@@ -3,89 +3,98 @@
 #ifndef PINICORE_LOG_H
 #define PINICORE_LOG_H
 
+#include "utils/time.hpp"
+
 #ifdef ARDUINO_AVR_MEGA2560
     #include "print.h"
     #define PRINTF  serialPrintf
 #else
     #define PRINTF  Serial.printf
-#endif 
+#endif
+
 
 /**
- * Example of LOG_LEVEL setting:
- * #define LOG_LEVEL LOG_LEVEL_DEBUG
+ * Example of PLOG_LEVEL setting:
+ * #define PLOG_LEVEL PLOG_LEVEL_DEBUG
  * 
- * This should be defined in GLOBAL and before including this LOG header file.
+ * This should be defined in before including this LOG header file.
  */
 
 /**
  * Want colored log messages?
- * Use this define in GLOBAL before including this LOG header file:
- * #define LOG_COLORED
+ * Use this define before including this LOG header file:
+ * #define PLOG_COLORED
  */
 
 
 // Define log levels
-#define PLOG_LEVEL_NONE    0
-#define PLOG_LEVEL_FATAL   1
-#define PLOG_LEVEL_ERROR   2
-#define PLOG_LEVEL_WARN    3
-#define PLOG_LEVEL_INFO    4
-#define PLOG_LEVEL_DEBUG   5
-#define PLOG_LEVEL_TRACE   6
+#define PLOG_LEVEL_NONE     0
+#define PLOG_LEVEL_FATAL    1
+#define PLOG_LEVEL_ERROR    2
+#define PLOG_LEVEL_WARN     3
+#define PLOG_LEVEL_INFO     4
+#define PLOG_LEVEL_DEBUG    5
+#define PLOG_LEVEL_TRACE    6
 
 #ifdef PLOG_COLORED
-#define PLOG_TEXT_FATAL  "\e[1;41mFATAL: \e[0m"
-#define PLOG_TEXT_ERROR  "\e[1;31mERROR: \e[0m"
-#define PLOG_TEXT_WARN   "\e[1;33mWARN:  \e[0m"
-#define PLOG_TEXT_INFO   "\e[1;32mINFO:  \e[0m"
-#define PLOG_TEXT_DEBUG  "\e[1;37mDEBUG: \e[0m"
-#define PLOG_TEXT_TRACE  "\e[1;36mTRACE: \e[0m"
+    const char PLOG_TEXT_FATAL[]   = "\e[1;41mFATAL\e[0m";
+    const char PLOG_TEXT_ERROR[]   = "\e[1;31mERROR\e[0m";
+    const char PLOG_TEXT_WARN[]    = "\e[1;33mWARN\e[0m ";
+    const char PLOG_TEXT_INFO[]    = "\e[1;32mINFO\e[0m ";
+    const char PLOG_TEXT_DEBUG[]   = "\e[1;37mDEBUG\e[0m";
+    const char PLOG_TEXT_TRACE[]   = "\e[1;36mTRACE\e[0m";
 #else
-#define PLOG_TEXT_FATAL  "FATAL: "
-#define PLOG_TEXT_ERROR  "ERROR: "
-#define PLOG_TEXT_WARN   "WARN:  "
-#define PLOG_TEXT_INFO   "INFO:  "
-#define PLOG_TEXT_DEBUG  "DEBUG: "
-#define PLOG_TEXT_TRACE  "TRACE: "
+    const char PLOG_TEXT_FATAL[]   = "FATAL"
+    const char PLOG_TEXT_ERROR[]   = "ERROR"
+    const char PLOG_TEXT_WARN[]    = "WARN "
+    const char PLOG_TEXT_INFO[]    = "INFO "
+    const char PLOG_TEXT_DEBUG[]   = "DEBUG"
+    const char PLOG_TEXT_TRACE[]   = "TRACE"
 #endif
 
 
-// Define logging macros based on compile-time selection
+// Helper macro to generate the log
+#define PLOG_IMPL(logLevelStr, klass, fmt, ...) \
+    PRINTF("%s (%llu) [%s] " fmt "\n", logLevelStr, getMillis(), klass, ##__VA_ARGS__)
+
+
+// Level-specific macros
 #if PLOG_LEVEL >= PLOG_LEVEL_FATAL
-  #define FATAL(klass, ...)    PRINTF(PLOG_TEXT_FATAL "[" klass "] " __VA_ARGS__ ); Serial.println();
+  #define LOG_F(klass, fmt, ...) PLOG_IMPL(PLOG_TEXT_FATAL, klass, fmt, ##__VA_ARGS__)
 #else
-  #define FATAL(klass, ...)
+  #define LOG_F(klass, fmt, ...)
 #endif
 
 #if PLOG_LEVEL >= PLOG_LEVEL_ERROR
-  #define ERROR(klass, ...)    PRINTF(PLOG_TEXT_ERROR "[" klass "] " __VA_ARGS__ ); Serial.println();
+  #define LOG_E(klass, fmt, ...) PLOG_IMPL(PLOG_TEXT_ERROR, klass, fmt, ##__VA_ARGS__)
 #else
-  #define ERROR(klass, ...)
+  #define LOG_E(klass, fmt, ...)
 #endif
 
 #if PLOG_LEVEL >= PLOG_LEVEL_WARN
-  #define WARN(klass, ...)     PRINTF(PLOG_TEXT_WARN "[" klass "] " __VA_ARGS__ ); Serial.println();
+  #define LOG_W(klass, fmt, ...) PLOG_IMPL(PLOG_TEXT_WARN, klass, fmt, ##__VA_ARGS__)
 #else
-  #define WARN(klass, ...)
+  #define LOG_W(klass, fmt, ...)
 #endif
 
 #if PLOG_LEVEL >= PLOG_LEVEL_INFO
-  #define INFO(klass, ...)     PRINTF(PLOG_TEXT_INFO "[" klass "] " __VA_ARGS__ ); Serial.println();
+  #define LOG_I(klass, fmt, ...) PLOG_IMPL(PLOG_TEXT_INFO, klass, fmt, ##__VA_ARGS__)
 #else
-  #define INFO(klass, ...)
+  #define LOG_I(klass, fmt, ...)
 #endif
 
 #if PLOG_LEVEL >= PLOG_LEVEL_DEBUG
-  #define DEBUG(klass, ...)    PRINTF(PLOG_TEXT_DEBUG "[" klass "] " __VA_ARGS__ ); Serial.println();
+  #define LOG_D(klass, fmt, ...) PLOG_IMPL(PLOG_TEXT_DEBUG, klass, fmt, ##__VA_ARGS__)
 #else
-  #define DEBUG(klass, ...)
+  #define LOG_D(klass, fmt, ...)
 #endif
 
 #if PLOG_LEVEL >= PLOG_LEVEL_TRACE
-  #define TRACE(klass, ...)    PRINTF(PLOG_TEXT_TRACE "[" klass "] " __VA_ARGS__ ); Serial.println();
+  #define LOG_T(klass, fmt, ...) PLOG_IMPL(PLOG_TEXT_TRACE, klass, fmt, ##__VA_ARGS__)
 #else
-  #define TRACE(klass, ...)
+  #define LOG_T(klass, fmt, ...)
 #endif
+
 
 
 #endif // PINICORE_LOG_H
