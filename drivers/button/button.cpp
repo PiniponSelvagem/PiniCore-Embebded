@@ -1,4 +1,4 @@
-#include "button.h"
+#include "button.hpp"
 #include <Arduino.h>
 
 /**
@@ -25,13 +25,13 @@
 /**
  * @brief	Checks for button state changes and their active state, and returns it as a mask.
  * @param   id: Button identifier, equal to the possition in the \ref 'btns' array.
- * @param	btnInfo: Struct containing button info, unique ID and other information.
+ * @param	pinBtn: Pin this button is connected to.
  * @return	Mask containing only the button state, shifted to its correct placement based on its unique ID.
  *          Does NOT contain transition state detection.
  */
-static uint32_t updateButtonEvent(uint8_t id, struct BTN_INFO btnInfo) {
+static uint32_t updateButtonEvent(uint8_t id, uint8_t pinBtn) {
 	int pinsState = 0;
-    pinsState = ~(digitalRead(btnInfo.pin)) << id * BTN_MASK_SIZE;
+    pinsState = ~(digitalRead(pinBtn)) << id * BTN_MASK_SIZE;
     pinsState &= (0x1 << (BTN_MASK_SIZE * id));	// 0x1 -> to make & with the current state.
 	return pinsState;
 }
@@ -40,9 +40,9 @@ static uint32_t updateButtonEvent(uint8_t id, struct BTN_INFO btnInfo) {
 
 
 
-Button::Button(BTN_INFO* btns, uint8_t nBtns) {
+Button::Button(uint8_t* btns, uint8_t nBtns) {
     for (uint8_t i=0; i<nBtns && i<BUTTON_MAX; ++i) {
-        this->m_btns[i].pin = btns[i].pin;
+        this->m_btns[i] = btns[i];
         this->m_nButtons++; 
     }
 }
@@ -50,7 +50,7 @@ Button::Button(BTN_INFO* btns, uint8_t nBtns) {
 void Button::init() {
 	int i = 0;
 	while (i < m_nButtons) {
-        int p = m_btns[i].pin;
+        int p = m_btns[i];
         pinMode(p, INPUT_PULLUP);
 		++i;
 	}

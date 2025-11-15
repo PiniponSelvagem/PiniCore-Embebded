@@ -1,8 +1,6 @@
 /**
-* @file		led.h
+* @file		led.hpp
 * @brief	LED configuration API.
-* @version	1.1
-* @date		12 Jun 2024
 * @author	PiniponSelvagem
 *
 * Copyright(C) PiniponSelvagem
@@ -13,17 +11,12 @@
 * products. This software is supplied "AS IS" without any warranties.
 **********************************************************************/
 
-#ifndef PINICORE_LED_H
-#define PINICORE_LED_H
+#pragma once
 
-#include "piniconst.h"
+#ifndef _PINICORE_LED_H
+#define _PINICORE_LED_H
 
-/**
- * @brief	Structure containing led information.
- */
-struct LED_INFO {
-    PIN pin;		    /** Board pin the led is connected to. */
-};
+#include <stdint.h>
 
 /**
  * @brief	Maximum number of leds supported.
@@ -34,11 +27,11 @@ class Led {
     public:
         /**
          * @brief	LED constructor.
-         * @param   leds: Led configuration array.
+         * @param   pinLeds: Pins array the leds are connected to.
          * @param   nLeds: Number of leds in the array.
          * @note    If 'size' is above 'LED_MAX', only the first 'LED_MAX' leds will be configured with the rest being ignored.
          */
-        Led(LED_INFO* leds, uint8_t nLeds);
+        Led(uint8_t* pinLeds, uint8_t nLeds);
 
         /**
          * @brief	Initializes the configured led.
@@ -70,10 +63,9 @@ class Led {
 
     private:
         /**
-         * @brief	Array of 'LED_INFO' structures containing all leds to be configured when \ref 'init' is called.
-         * @note	Led definition, see \ref 'LED_INFO' on how a led is defined.
+         * @brief	Array of pins containing all led pins configured when \ref 'init' is called.
          */
-        struct LED_INFO m_leds[LED_MAX];
+        uint8_t m_leds[LED_MAX];
 
         /**
          * @brief   Number of configured leds.
@@ -92,5 +84,4 @@ class Led {
         uint32_t m_ledsCurrentState = 0;
 };
 
-
-#endif /* PINICORE_LED_H */
+#endif /* _PINICORE_LED_H */

@@ -1,8 +1,6 @@
 /**
-* @file		button.h
+* @file		button.hpp
 * @brief	Button API.
-* @version	1.1
-* @date		13 Jun 2024
 * @author	PiniponSelvagem
 *
 * Copyright(C) PiniponSelvagem
@@ -13,17 +11,12 @@
 * products. This software is supplied "AS IS" without any warranties.
 **********************************************************************/
 
-#ifndef PINICORE_BUTTON_H
-#define PINICORE_BUTTON_H
+#pragma once
 
-#include "piniconst.h"
+#ifndef _PINICORE_BUTTON_H
+#define _PINICORE_BUTTON_H
 
-/**
- * @brief	Structure containing button information.
- */
-struct BTN_INFO {
-    PIN pin;		    /** Board pin the button is connected to. */
-};
+#include <stdint.h>
 
 /**
  * @brief	Maximum number of buttons supported.
@@ -34,11 +27,11 @@ class Button {
     public:
         /**
          * @brief	Button constructor.
-         * @param	btns: Button configuration array.
+         * @param	pinBtns: Pins array the buttons are connected to.
          * @param	nBtns: Number of buttons in the array.
          * @note    If 'size' is above 'BUTTON_MAX', only the first 'BUTTON_MAX' buttons will be configured with the rest being ignored.
          */
-        Button(BTN_INFO* btns, uint8_t nBtns);
+        Button(uint8_t* pinBtns, uint8_t nBtns);
 
         /**
          * @brief	Initializes the configured buttons.
@@ -107,10 +100,9 @@ class Button {
 
     private:
         /**
-         * @brief	Array of 'BTN_INFO' structures containing all buttons to be configured when \ref 'init' is called.
-         * @note	Button definition, see \ref 'BTN_INFO' on how a button is defined.
+         * @brief	Array of btns pins to be configured when \ref 'init' is called.
          */
-        struct BTN_INFO m_btns[BUTTON_MAX];
+        uint8_t m_btns[BUTTON_MAX];
 
         /**
          * @brief   Number of configured buttons.
@@ -130,4 +122,4 @@ class Button {
         uint32_t m_btnsLastState = 0;
 };
 
-#endif /* PINICORE_BUTTON_H */
+#endif /* _PINICORE_BUTTON_H */

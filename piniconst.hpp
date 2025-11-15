@@ -1,8 +1,6 @@
 /**
-* @file		pinicore.h
-* @brief	Easy include PiniCore library.
-* @version	1.0
-* @date		12 Jun 2024
+* @file		piniconst.h
+* @brief	Definitions and constants used by PiniCore library.
 * @author	PiniponSelvagem
 *
 * Copyright(C) PiniponSelvagem
@@ -13,14 +11,11 @@
 * products. This software is supplied "AS IS" without any warranties.
 **********************************************************************/
 
-#ifndef PINICORE_H
-#define PINICORE_H
+#pragma once
 
-#include "utils/print.h"
-#include "utils/log.h"
+#ifndef _PINICORE_CONST_H
+#define _PINICORE_CONST_H
 
-#include "drivers/button/button.h"
-#include "drivers/led/led.h"
-#include "drivers/rotaryencoder/rotaryencoder.h"
+#define SerialAT Serial1    ///> Serial for AT commands, example GSM module
 
-#endif /* PINICORE_H */
+#endif /* _PINICORE_CONST_H */

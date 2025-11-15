@@ -1,6 +1,6 @@
 /**
-* @file		time.hpp
-* @brief	Time related helper functions.
+* @file		piniconfig.h
+* @brief	Configurations for libraries used by PiniCore library.
 * @author	PiniponSelvagem
 *
 * Copyright(C) PiniponSelvagem
@@ -13,17 +13,14 @@
 
 #pragma once
 
-#ifndef _PINICORE_TIME_H
-#define _PINICORE_TIME_H
-
-#include <esp_timer.h>
+#ifndef _PINICORE_CONFIG_H
+#define _PINICORE_CONFIG_H
 
 /**
- * @brief Returns the milliseconds since BOOT.
- * @note Recommended to use this instead of Arduino "millis()" since that overflows after +/-49 days, because it uses 32 bits.
+ * @brief Redefine this config header file and include it because PiniCore library include,
+ *        to customize other libraries used by PiniCore.
  */
-inline uint64_t getMillis() {
-    return static_cast<uint64_t>(esp_timer_get_time()) / 1000LL;
-}
 
-#endif // _PINICORE_TIME_H
+#define TINY_GSM_MODEM_SIM800   ///< Default GSM modem
+
+#endif /* _PINICORE_CONFIG_H */

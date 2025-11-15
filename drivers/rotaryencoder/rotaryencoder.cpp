@@ -1,4 +1,4 @@
-#include "rotaryencoder.h"
+#include "rotaryencoder.hpp"
 #include <Arduino.h>
 
 // The array holds the values -1 for the entries where a position was decremented,

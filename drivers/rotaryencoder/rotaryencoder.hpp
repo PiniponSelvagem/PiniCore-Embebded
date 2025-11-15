@@ -1,8 +1,6 @@
 /**
-* @file		rotaryencoder.h
+* @file		rotaryencoder.hpp
 * @brief	Contains the rotary encoder API.
-* @version	1.0
-* @date		17 Aug 2024
 * @author	PiniponSelvagem
 *
 * Based on the rotary encoder from MobiFlight-FirmwareSource.
@@ -16,10 +14,12 @@
 * products. This software is supplied "AS IS" without any warranties.
 **********************************************************************/
 
-#ifndef PINICORE_ROTARYENCODER_H
-#define PINICORE_ROTARYENCODER_H
+#pragma once
 
-#include "piniconst.h"
+#ifndef _PINICORE_ROTARYENCODER_H
+#define _PINICORE_ROTARYENCODER_H
+
+#include <stdint.h>
 
 #define ROTENC_MAX 4000         // prevent internal position overflow
 #define ROTENC_FAST_SPEED 5     // the inc/dec to add when during fast mode
@@ -115,6 +115,4 @@ class RotaryEncoder {
         int32_t             m_delta;             // rotation delta since last getDelta call
 };
 
-
-
-#endif /* PINICORE_ROTARYENCODER_H */
+#endif /* _PINICORE_ROTARYENCODER_H */
