@@ -18,6 +18,12 @@
  * - Add support for Arduino boards, currently only compiles on ESP-IDF based ones.
  */
 
+/**
+  * Dependencies:
+  * lib_deps = 
+  *     vshymanskyy/TinyGSM@^0.12
+  *     https://github.com/alkonosst/SSLClientESP32.git#v2.0.3
+  */
 #ifndef _PINICORE_H
 #define _PINICORE_H
 
@@ -31,7 +37,10 @@
 #include "drivers/led/led.hpp"
 #include "drivers/rotaryencoder/rotaryencoder.hpp"
 
-#include "network/wifi.hpp"
-#include "network/mobile.hpp"
+#include "network/communication/wifi.hpp"
+#include "network/communication/mobile.hpp"
+#include "network/communication/mobile_ts.hpp"
+
+#include "network/request/ota_ts.hpp"
 
 #endif /* _PINICORE_H */

@@ -29,12 +29,6 @@ class INetwork {
         virtual ~INetwork() = default;
 
         /**
-         * @brief	Initializes the network interface.
-         * @note	This function must be called prior to any other INetwork functions.
-         */
-        virtual void init() = 0;
-
-        /**
          * @brief   Keeps the network alive and tries to reconnect if network state dropped.
          * @note    Call this function periodically to maintain the network alive.
          */
@@ -71,7 +65,7 @@ class INetwork {
          * @brief   Get the Client network object.
          * @return  Pointer to Client object.
          */
-        virtual const Client* getClient() const = 0;
+        virtual Client* getClient() = 0;
 
         /**
          * @brief   Get the name of the current connected network.

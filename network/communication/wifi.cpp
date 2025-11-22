@@ -10,14 +10,14 @@ void WiFiComm::init() {
 void WiFiComm::config(const char* ssid, const char* pass) {
     strncpy(m_ssid, ssid, sizeof(m_ssid));
     strncpy(m_pass, pass, sizeof(m_pass));
-    LOG_D(PINICORE_TAG_WIFI, "Configured WiFi SSID: %s", m_ssid);
+    LOG_D(PINICORE_TAG_WIFI, "Configured WiFi: [SSID: %s]", m_ssid);
 }
 
 void WiFiComm::configAP(const char* ssid, const char* pass, bool hidden) {
     strncpy(m_ssidAP, ssid, sizeof(m_ssidAP));
     strncpy(m_passAP, pass, sizeof(m_passAP));
     m_isHiddenAP = hidden;
-    LOG_D(PINICORE_TAG_WIFI, "Configured WiFi AP SSID: %s", m_ssidAP);
+    LOG_D(PINICORE_TAG_WIFI, "Configured WiFi AP: [SSID: %s]", m_ssidAP);
 }
 
 void WiFiComm::maintain() {

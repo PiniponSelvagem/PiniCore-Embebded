@@ -22,6 +22,9 @@
 /**
  * Example of PLOG_LEVEL setting:
  * #define PLOG_LEVEL PLOG_LEVEL_DEBUG
+ * or
+ * In 'platformio.ini' define the env variable:
+ * -DPLOG_LEVEL=PLOG_LEVEL_DEBUG
  * 
  * This should be defined in before including this LOG header file.
  */
@@ -33,6 +36,9 @@
  * Want to remove colored log messages?
  * Use this define before including this LOG header file:
  * #define PLOG_NO_COLOR
+ * or
+ * In 'platformio.ini' define the env variable:
+ * -D PLOG_NO_COLOR
  */
 
 // Define log levels

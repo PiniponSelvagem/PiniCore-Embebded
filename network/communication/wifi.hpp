@@ -33,10 +33,10 @@ struct WiFiConfig {
 class WiFiComm : public INetwork {
     public:
         /**
-         * @brief	Initializes the network interface.
+         * @brief	Initializes the wifi network interface.
          * @note	This function must be called prior to any other WiFiComm functions.
          */
-        void init() override;
+        void init();
 
         /**
          * @brief   Configure WiFi connection or replace the current configuration with a new one.
@@ -92,13 +92,13 @@ class WiFiComm : public INetwork {
         /**
          * @brief   Turn on the WiFi device.
          */
-        virtual void enable() override;
+        void enable() override;
 
         /**
          * @brief   Turn off the WiFi device.
          * @note    If WiFi AP is connected, it will disconnect it and the stations connected.
          */
-        virtual void disable() override;
+        void disable() override;
 
         /**
          * @brief   Get the type of this network interface.
@@ -110,7 +110,7 @@ class WiFiComm : public INetwork {
          * @brief   Get the Client network object.
          * @return  Pointer to Client object.
          */
-        inline const Client* getClient() const override { return &m_client; };
+        inline Client* getClient() override { return &m_client; };
 
         /**
          * @brief   Get the name of the current connected network.
@@ -136,6 +136,7 @@ class WiFiComm : public INetwork {
          */
         inline bool isConnectedAP() const { return m_isActiveAP; };
 
+        
     private:
         WiFiClient m_client;
 
