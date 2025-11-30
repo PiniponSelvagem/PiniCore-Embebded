@@ -1,10 +1,10 @@
 /**
- * Suggested to use the ArduinoHttpClient library.
+ * Arduino library found at:
  * - https://github.com/arduino-libraries/ArduinoHttpClient
  * 
  * PlatformIO library dependency:
  *      arduino-libraries/ArduinoHttpClient@^0.6.1
  * 
- * Also, avoid the use of String versions of the ArduinoHttpClient functions.
- * Use char* as buffers instead.
+ * TODO:
+ * - Find or create a library that does not use String to avoid memory fragmentation.
  */

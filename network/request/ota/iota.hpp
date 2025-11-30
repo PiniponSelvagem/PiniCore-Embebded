@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef _PINICORE_OTA_H
-#define _PINICORE_OTA_H
+#ifndef _PINICORE_IOTA_H
+#define _PINICORE_IOTA_H
 
 #include <stdint.h>
 #include <functional>
@@ -24,13 +24,17 @@ enum EOTAUpdateStatus {
     OTA_FAILED,
     OTA_UPDATE_NOT_AVAILABLE,
     OTA_INSTALLED,
+    OTA_DL_COMPLETE,
     OTA_DL_INCOMPLETE,
     OTA_CHECKSUM_MISMATCH,
     OTA_MEMORY_ERROR,
-    OTA_SSL_ERROR
+    OTA_CLIENT_ERROR
 };
 
-#define OTA_ONPROGRESS_SIGNATURE std::function<void(uint32_t, uint32_t)> ///> downloadedBytes, totalBytes -> called during update download
+#define PINICORE_OTA_ONPROGRESS_SIGNATURE std::function<void(uint32_t downloadedBytes, uint32_t totalBytes)> ///> Called during update download.
+
+#define PINICORE_OTA_SHA256_MAX_SIZE         32
+#define PINICORE_OTA_SHA256_MAX_SIZE_CHAR    (PINICORE_OTA_SHA256_MAX_SIZE*2)
 
 class IOTA {
     public:
@@ -40,14 +44,14 @@ class IOTA {
          * @param   currFirmware Current firmware version.
          * @param   serial Controller serial / uniqueID, optional for APIs that do not require it.
          */
-        IOTA(Client *client, int currFirmware, const char* serial = NULL);
+        IOTA(Client* client, int currFirmware, const char* serial = NULL);
 
         /**
          * @brief   Set the firmware download progress callback.
          * @param   onProgress Function to be called during firmware download. Signature: 'onProgress(uint32_t downloadedBytes, uint32_t totalBytes)'.
          * @note    Configuring this callback is optional.
          */
-        void setProgressCallback(OTA_ONPROGRESS_SIGNATURE onProgress);
+        void setProgressCallback(PINICORE_OTA_ONPROGRESS_SIGNATURE onProgress);
 
         /**
          * @brief   Check for updates based on the current firmware version.
@@ -96,16 +100,39 @@ class IOTA {
          */
         inline const char* getUniqueID() { return m_serial; }
 
+        /**
+         * @brief   Start download process.
+         * @param   client The communication client in use.
+         * @param   updateMD5 MD5 found in the header of the reply.
+         * @param   totalSize Expected firmware size found in the header of the reply.
+         * @param   calculatedSHA256 At the end of the 
+         */
+        EOTAUpdateStatus download(
+            Client* client, const char* updateMD5, uint32_t totalSize,
+            char calculatedSHA256[PINICORE_OTA_SHA256_MAX_SIZE_CHAR]
+        );
+
+        EOTAUpdateStatus install(
+            const char* updateMD5, const char* updateSHA256,
+            char calculatedSHA256[PINICORE_OTA_SHA256_MAX_SIZE_CHAR]
+        );
+
+
         int p_versionAvailable = -1;    ///> Firmware version available. Call 'checkUpdate' first, if still -1, then no update available. 
 
 
     private:
+        /**
+         * @brief   Abort update and free resources.
+         */
+        void abortAndFree();    
+
         Client *m_client;
 
         int m_currFirmware;
         const char* m_serial;
 
-        OTA_ONPROGRESS_SIGNATURE m_onProgress;  ///> The callback called during download progress. Use \ref 'onProgress' since that will check if this function pointer is valid.
+        PINICORE_OTA_ONPROGRESS_SIGNATURE m_onProgress;  ///> The callback called during download progress. Use \ref 'onProgress' since that will check if this function pointer is valid.
 };
 
-#endif // _PINICORE_OTA_H
+#endif // _PINICORE_IOTA_H

@@ -40,10 +40,6 @@ bool MobileComm::connect() {
     m_isActive = true;
     m_provider[0] = 0; // Clear provider network name since no longer connected
 
-    // Power cycle the modem to ensure it goes to a known state
-    disable();
-    enable();
-
     LOG_D(PINICORE_TAG_MOBILE, "Starting modem");
     if (!m_modem.restart()) {
         LOG_E(PINICORE_TAG_MOBILE, "Unable to restart Mobile module! Possible problem with hardware.");
@@ -74,15 +70,16 @@ void MobileComm::disconnect() {
 }
 
 void MobileComm::enable() {
+    digitalWrite(p_pinReset,    HIGH);
+    digitalWrite(p_pinPowerOn,  HIGH);
     digitalWrite(p_pinPowerKey, LOW);
-    digitalWrite(p_pinReset, HIGH);
-    digitalWrite(p_pinPowerOn, LOW);
-    delay(100);
-    digitalWrite(p_pinPowerOn, HIGH);
+    delay(1000);
+    digitalWrite(p_pinPowerKey, HIGH);
 }
 
 void MobileComm::disable() {
+    digitalWrite(p_pinPowerKey, LOW);
+    delay(1000);
     digitalWrite(p_pinPowerKey, HIGH);
-    digitalWrite(p_pinReset, LOW);
-    digitalWrite(p_pinPowerOn, HIGH);
+    digitalWrite(p_pinPowerOn,  LOW);
 }

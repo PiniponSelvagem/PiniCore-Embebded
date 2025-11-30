@@ -19,7 +19,7 @@
 #include "iota.hpp"
 #include <stdint.h>
 
-#define OTA_TS_AVAILABLEUPDATE_URI_MAX_SIZE 128
+#define PINICORE_OTA_TS_AVAILABLEUPDATE_URI_MAX_SIZE 128
 
 class OTATS : public IOTA{
     public:
@@ -33,14 +33,24 @@ class OTATS : public IOTA{
         : IOTA(client, currFirmware, serial) { }
 
         /**
-         * @brief   Adds and enables the usage of a SSL certificate.
-         * @param   certificate SSL certificate, char* starting from '-----BEGIN CERTIFICATE-----\n' until '-----END CERTIFICATE-----\n' inclusive.
+         * @brief   Set credentials for 'Basic Authentication'.
+         * @param   username Credential username.
+         * @param   password Credential password.
+         * @warning To save memory, 'username' and 'password' pointers must be valid for the entire life of the OTATS object.
          */
-        void addCertificate(const char* certificate);
+        void setCredentials(const char* username, const char* password);
+
+        /**
+         * @brief   Set a SSL certificate.
+         * @param   certificate SSL certificate, char* starting from '-----BEGIN CERTIFICATE-----\n' until '-----END CERTIFICATE-----\n' inclusive.
+         * @warning To save memory, 'certificate' pointer must be valid for the entire life of the OTATS object.
+         */
+        void setCertificate(const char* certificate);
 
         /**
          * @brief   Check for updates based on the current firmware version.
          * @return  Available update status.
+         * @warning Call \ref 'setCredentials' and \ref 'setCertificate' before calling this function.
          */
         bool checkUpdate() override;
 
@@ -54,9 +64,11 @@ class OTATS : public IOTA{
 
 
     private:
+        const char* m_username;
+        const char* m_password;
         const char* m_certificate;
 
-        char m_uriAvailableUpdate[OTA_TS_AVAILABLEUPDATE_URI_MAX_SIZE];
+        char m_uriAvailableUpdate[PINICORE_OTA_TS_AVAILABLEUPDATE_URI_MAX_SIZE];
 };
 
 #endif // _PINICORE_OTATS_H
