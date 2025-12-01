@@ -38,6 +38,8 @@
 #include "drivers/button/button.hpp"
 #include "drivers/led/led.hpp"
 #include "drivers/rotaryencoder/rotaryencoder.hpp"
+#include "drivers/sensors/lm35.hpp"
+#include "drivers/sensors/dht.hpp"
 
 #include "network/communication/inetwork.hpp"
 #include "network/communication/wifi.hpp"
