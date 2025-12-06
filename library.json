@@ -1,0 +1,5 @@
+{
+  "frameworks": ["arduino"],
+  "platforms": "*",
+  "headers": "pinicore.hpp"
+}

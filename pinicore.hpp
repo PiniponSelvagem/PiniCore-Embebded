@@ -39,10 +39,9 @@
 #include "drivers/io/button/button.hpp"
 #include "drivers/io/led/led.hpp"
 #include "drivers/io/rotaryencoder/rotaryencoder.hpp"
-/*
+
 #include "drivers/io/relays/irelays.hpp"
 #include "drivers/io/relays/rl_virtual.hpp"
-*/
 
 #include "drivers/sensors/lm35.hpp"
 #include "drivers/sensors/dht.hpp"
