@@ -14,7 +14,7 @@
  * 
  *          Could be the size of a ESP32 flash page (usually 4096 bytes), but the SSL seems to like a smaller value.
  */
-#define PINICORE_OTA_UPDATE_BUFFER_SIZE  256
+#define OTA_UPDATE_BUFFER_SIZE  256
 
 IOTA::IOTA(Client* client, int currFirmware, const char* serial) {
     m_client       = client;
@@ -22,7 +22,7 @@ IOTA::IOTA(Client* client, int currFirmware, const char* serial) {
     m_serial       = serial;
 }
 
-void IOTA::setProgressCallback(PINICORE_OTA_ONPROGRESS_SIGNATURE onProgress) {
+void IOTA::setProgressCallback(OTA_ONPROGRESS_SIGNATURE onProgress) {
     m_onProgress = onProgress;
 }
 
@@ -33,10 +33,10 @@ void IOTA::onProgress(uint32_t downloadedBytes, uint32_t totalBytes) {
 
 EOTAUpdateStatus IOTA::download(
     Client* client, const char* updateMD5, uint32_t totalSize,
-    char calculatedSHA256[PINICORE_OTA_SHA256_MAX_SIZE_CHAR]
+    char calculatedSHA256[OTA_SHA256_MAX_SIZE_CHAR]
 ) {
     uint8_t* updateBuffer;
-    size_t updateBufferSize = mallocTarget((void**)&updateBuffer, PINICORE_OTA_UPDATE_BUFFER_SIZE, 2);
+    size_t updateBufferSize = mallocTarget((void**)&updateBuffer, OTA_UPDATE_BUFFER_SIZE, 2);
 
     // Prepare
     if (!Update.begin(totalSize)) {
@@ -61,7 +61,7 @@ EOTAUpdateStatus IOTA::download(
     while (downloadedSize < totalSize && client->connected() && getMillis()-timeout < (30*1000)) {
         while (client->available()) {
             size_t availableLen = client->available();
-            size_t toRead = min(PINICORE_OTA_UPDATE_BUFFER_SIZE-bufferPos, availableLen);
+            size_t toRead = min(OTA_UPDATE_BUFFER_SIZE-bufferPos, availableLen);
             int bytesRead = client->readBytes(updateBuffer + bufferPos, toRead);
 
             if (bytesRead < 0) {
@@ -78,7 +78,7 @@ EOTAUpdateStatus IOTA::download(
             bufferPos += bytesRead;
             downloadedSize += bytesRead;
         
-            if (bufferPos >= PINICORE_OTA_UPDATE_BUFFER_SIZE || downloadedSize == totalSize) {
+            if (bufferPos >= OTA_UPDATE_BUFFER_SIZE || downloadedSize == totalSize) {
                 mbedtls_md_update(&ctx, (const unsigned char*)updateBuffer, bufferPos);
         
                 int written = Update.write(updateBuffer, bufferPos);
@@ -96,14 +96,14 @@ EOTAUpdateStatus IOTA::download(
     free(updateBuffer);
     LOG_I(PINICORE_TAG_OTA, "Firmware download complete");
     
-    byte calcSHA256[PINICORE_OTA_SHA256_MAX_SIZE];
+    byte calcSHA256[OTA_SHA256_MAX_SIZE];
     mbedtls_md_finish(&ctx, calcSHA256);
     mbedtls_md_free(&ctx);
     // Convert raw SHA-256 (32 bytes) to hex string (64 chars + null)
-    for (int i=0; i<PINICORE_OTA_SHA256_MAX_SIZE; ++i) {
+    for (int i=0; i<OTA_SHA256_MAX_SIZE; ++i) {
         sprintf(&calculatedSHA256[i*2], "%02x", calcSHA256[i]);
     }
-    calculatedSHA256[PINICORE_OTA_SHA256_MAX_SIZE_CHAR]=0;
+    calculatedSHA256[OTA_SHA256_MAX_SIZE_CHAR]=0;
 
     LOG_D(PINICORE_TAG_OTA, "Expected size in bytes: %d", totalSize);
     LOG_D(PINICORE_TAG_OTA, "Actual   size in bytes: %d", downloadedSize);
@@ -118,7 +118,7 @@ EOTAUpdateStatus IOTA::download(
 
 EOTAUpdateStatus IOTA::install(
     const char* updateMD5, const char* updateSHA256,
-    char calculatedSHA256[PINICORE_OTA_SHA256_MAX_SIZE_CHAR]
+    char calculatedSHA256[OTA_SHA256_MAX_SIZE_CHAR]
 ) {
     LOG_D(PINICORE_TAG_OTA, "Expected SHA-256: %s", updateSHA256);
     LOG_D(PINICORE_TAG_OTA, "Actual   SHA-256: %s", calculatedSHA256);

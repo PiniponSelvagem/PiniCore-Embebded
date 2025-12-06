@@ -13,13 +13,13 @@
 
 #pragma once
 
-#ifndef _PINICORE_MOBILE_H
-#define _PINICORE_MOBILE_H
+#ifndef _PINICORE_MOBILE_H_
+#define _PINICORE_MOBILE_H_
 
 #include "inetwork.hpp"
 #include "piniconst.hpp"
 
-#ifndef _PINICORE_CONFIG_H
+#ifndef _PINICORE_CONFIG_H_
     #include "piniconfig.hpp"
 #endif
 
@@ -147,4 +147,4 @@ class MobileComm : public INetwork {
         TinyGsmClient m_gsmClient = TinyGsmClient(m_modem, 0);
 };
 
-#endif /* _PINICORE_MOBILE_H */
+#endif /* _PINICORE_MOBILE_H_ */

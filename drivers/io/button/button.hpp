@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef _PINICORE_BUTTON_H
-#define _PINICORE_BUTTON_H
+#ifndef _PINICORE_IO_BUTTON_H_
+#define _PINICORE_IO_BUTTON_H_
 
 #include <stdint.h>
 
@@ -26,18 +26,12 @@
 class Button {
     public:
         /**
-         * @brief	Button constructor.
-         * @param	pinBtns: Pins array the buttons are connected to.
-         * @param	nBtns: Number of buttons in the array.
-         * @note    If 'size' is above 'BUTTON_MAX', only the first 'BUTTON_MAX' buttons will be configured with the rest being ignored.
-         */
-        Button(uint8_t* pinBtns, uint8_t nBtns);
-
-        /**
          * @brief	Initializes the configured buttons.
+         * @param	pinBtns: Pins array the buttons are connected to.
+         * @param	size: Number of buttons in the array. If 'size' is above 'BUTTON_MAX', only the first 'BUTTON_MAX' buttons will be configured with the rest being ignored.
          * @note	This function must be called prior to any other Button functions.
          */
-        void init();
+        void init(uint8_t* pinBtns, uint8_t size);
 
         /**
          * @brief	Checks for button state changes and their active state, and returns it as a mask.
@@ -122,4 +116,4 @@ class Button {
         uint32_t m_btnsLastState = 0;
 };
 
-#endif /* _PINICORE_BUTTON_H */
+#endif /* _PINICORE_IO_BUTTON_H_ */

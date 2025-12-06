@@ -39,21 +39,13 @@ static uint32_t updateButtonEvent(uint8_t id, uint8_t pinBtn) {
 
 
 
+void Button::init(uint8_t* btns, uint8_t size) {
+    for (uint8_t i=0; i<size && i<BUTTON_MAX; ++i) {
+        m_btns[i] = btns[i];
+        ++m_nButtons;
 
-Button::Button(uint8_t* btns, uint8_t nBtns) {
-    for (uint8_t i=0; i<nBtns && i<BUTTON_MAX; ++i) {
-        this->m_btns[i] = btns[i];
-        this->m_nButtons++; 
+        pinMode(m_btns[i], INPUT_PULLUP);
     }
-}
-
-void Button::init() {
-	int i = 0;
-	while (i < m_nButtons) {
-        int p = m_btns[i];
-        pinMode(p, INPUT_PULLUP);
-		++i;
-	}
 }
 
 void Button::pullEvents() {

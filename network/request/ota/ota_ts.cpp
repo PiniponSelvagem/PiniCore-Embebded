@@ -73,7 +73,7 @@ bool OTATS::checkUpdate() {
         p_versionAvailable = json["firmware"]["version"];
 
         // available update URI path
-        strncpy(m_uriAvailableUpdate, json["firmware"]["url"], PINICORE_OTA_TS_AVAILABLEUPDATE_URI_MAX_SIZE);
+        strncpy(m_uriAvailableUpdate, json["firmware"]["url"], OTA_TS_AVAILABLEUPDATE_URI_MAX_SIZE);
 
         LOG_I(PINICORE_TAG_OTA_TS, "Found update: [version: %d] [uri: '%s']", p_versionAvailable, m_uriAvailableUpdate);
         return true;

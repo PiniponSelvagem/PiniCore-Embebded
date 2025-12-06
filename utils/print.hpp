@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef _PINICORE_PRINT_H
-#define _PINICORE_PRINT_H
+#ifndef _PINICORE_PRINT_H_
+#define _PINICORE_PRINT_H_
 
 #include <stdint.h>
 
@@ -26,4 +26,4 @@
  */
 void convertToBinaryString(char *buffer, uint32_t num, int bits);
 
-#endif // _PINICORE_PRINT_H
+#endif // _PINICORE_PRINT_H_

@@ -4,11 +4,11 @@
 #define PINICORE_TAG_MQTT    "pcore_mqtt"
 #define PINICORE_TAG_MQTT_CB "pcore_mqtt_cb"
 
-#define PINICORE_MQTT_RECONNECT_TIMER_IN_MILLIS     (15 * 1000)
+#define MQTT_RECONNECT_TIMER_IN_MILLIS     (15 * 1000)
 
 void MQTT::setClient(Client* client, const char* uniqueId) {
     m_mqttClient.setClient(*client);
-    m_mqttClient.setBufferSize(PINICORE_MQTT_BUFFER_SIZE);
+    m_mqttClient.setBufferSize(MQTT_BUFFER_SIZE);
     m_mqttClient.setCallback([this](char* topic, byte* payload, unsigned int length) {
         this->callback(topic, payload, length);
     });
@@ -55,7 +55,7 @@ void MQTT::maintain() {
         return;
     }
     
-    if ((getMillis()-m_timeOfLastTryConnect >= PINICORE_MQTT_RECONNECT_TIMER_IN_MILLIS)) {
+    if ((getMillis()-m_timeOfLastTryConnect >= MQTT_RECONNECT_TIMER_IN_MILLIS)) {
         LOG_W(PINICORE_TAG_MQTT, "Reconnecting... Reason: %d", m_mqttClient.state());
         m_mqttClient.disconnect();
         connect();
@@ -81,7 +81,7 @@ void MQTT::onUnsubscribe(MqttOnUnsubscribeCallback callback) {
     m_onUnsubscribeCallback = callback;
 }
 bool MQTT::onTopic(const char* topic, MqttOnTopicCallback callback) {
-    for (int i=0; i<PINICORE_MQTT_SUBSCRIBE_SIZE_MAX; ++i) {
+    for (int i=0; i<MQTT_SUBSCRIBE_SIZE_MAX; ++i) {
         MqttOnTopicCallback_t* onTopic = &m_onTopicCallbacks[i];
         if (onTopic->topic == NULL) {
             onTopic->topic    = topic;
@@ -97,7 +97,7 @@ bool MQTT::onTopic(const char* topic, MqttOnTopicCallback callback) {
 }
 
 void MQTT::removeOnTopic(const char* topic) {
-    for (int i=0; i<PINICORE_MQTT_SUBSCRIBE_SIZE_MAX; ++i) {
+    for (int i=0; i<MQTT_SUBSCRIBE_SIZE_MAX; ++i) {
         MqttOnTopicCallback_t* onTopic = &m_onTopicCallbacks[i];
         if (strcmp(onTopic->topic, topic) == 0) {
             m_mqttClient.unsubscribe(topic);
@@ -119,7 +119,7 @@ void MQTT::callback(char* topic, uint8_t* payload, unsigned int length) {
     m_buffer[length] = 0;
     LOG_D(PINICORE_TAG_MQTT_CB, "Received: [topic: %s] [payload: %s] [length: %d]", topic, m_buffer, length);
     
-    for (int i=0; i<PINICORE_MQTT_SUBSCRIBE_SIZE_MAX; ++i) {
+    for (int i=0; i<MQTT_SUBSCRIBE_SIZE_MAX; ++i) {
         MqttOnTopicCallback_t* onTopic = &m_onTopicCallbacks[i];
         if (strcmp(onTopic->topic, topic) == 0) {
             onTopic->callback(m_buffer, length);
@@ -129,7 +129,7 @@ void MQTT::callback(char* topic, uint8_t* payload, unsigned int length) {
 }
 
 void MQTT::subscribeAll() {
-    for (int i=0; i<PINICORE_MQTT_SUBSCRIBE_SIZE_MAX; ++i) {
+    for (int i=0; i<MQTT_SUBSCRIBE_SIZE_MAX; ++i) {
         MqttOnTopicCallback_t* onTopic = &m_onTopicCallbacks[i];
         if (onTopic->topic != NULL) {
             m_mqttClient.subscribe(onTopic->topic);

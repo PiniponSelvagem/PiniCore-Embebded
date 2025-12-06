@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef _PINICORE_LED_H
-#define _PINICORE_LED_H
+#ifndef _PINICORE_IO_LED_H_
+#define _PINICORE_IO_LED_H_
 
 #include <stdint.h>
 
@@ -26,18 +26,12 @@
 class Led {
     public:
         /**
-         * @brief	LED constructor.
-         * @param   pinLeds: Pins array the leds are connected to.
-         * @param   nLeds: Number of leds in the array.
-         * @note    If 'size' is above 'LED_MAX', only the first 'LED_MAX' leds will be configured with the rest being ignored.
-         */
-        Led(uint8_t* pinLeds, uint8_t nLeds);
-
-        /**
          * @brief	Initializes the configured led.
+         * @param   pinLeds: Pins array the leds are connected to.
+         * @param   size: Number of leds in the array. If 'size' is above 'LED_MAX', only the first 'LED_MAX' leds will be configured with the rest being ignored.
          * @note	This function must be called prior to any other LED functions.
          */
-        void init();
+        void init(uint8_t* pinLeds, uint8_t size);
 
         /**
          * @brief	Checks for led state changes and their active state, and returns it as a mask.
@@ -70,7 +64,7 @@ class Led {
         /**
          * @brief   Number of configured leds.
          */
-        uint8_t m_nLeds = 0;
+        int m_nLeds = 0;
 
         /**
          * @brief	Current state of all leds.
@@ -84,4 +78,4 @@ class Led {
         uint32_t m_ledsCurrentState = 0;
 };
 
-#endif /* _PINICORE_LED_H */
+#endif /* _PINICORE_IO_LED_H_ */

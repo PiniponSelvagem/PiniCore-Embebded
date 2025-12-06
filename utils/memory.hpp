@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef _PINICORE_MEMORY_H
-#define _PINICORE_MEMORY_H
+#ifndef _PINICORE_MEMORY_H_
+#define _PINICORE_MEMORY_H_
 
 #include <stdlib.h>
 
@@ -42,4 +42,4 @@ size_t mavailableLargest();
  */
 size_t mallocTarget(void** pMemory, size_t targetBytes, uint32_t dividerCap);
 
-#endif // _PINICORE_MEMORY_H
+#endif // _PINICORE_MEMORY_H_

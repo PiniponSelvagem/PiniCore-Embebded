@@ -13,20 +13,20 @@
 
 #pragma once
 
-#ifndef _PINICORE_SENSOR_LM35_H
-#define _PINICORE_SENSOR_LM35_H
+#ifndef _PINICORE_SENSOR_LM35_H_
+#define _PINICORE_SENSOR_LM35_H_
 
 #include <stdint.h>
 
 class LM35 {
     public:
-        virtual ~LM35() = default;
-
         /**
          * @brief	Initializes the sensor.
+         * @param   pin Pin the sensor is connected to.
+         * @param   offset Optional offset value to add to the temperature reading, calibrating the result value.
          * @note	This function must be called prior to any other sensor specific functions.
          */
-        void init(uint8_t pin);
+        void init(uint8_t pin, float offset = 0.f);
 
         /**
          * @brief   Read current temperature from hardware.
@@ -36,6 +36,7 @@ class LM35 {
 
     private:
         uint8_t m_pin;
+        float m_offset;
 };
 
-#endif /* _PINICORE_TEMPERATURE_LM35_H */
+#endif /* _PINICORE_SENSOR_LM35_H_ */

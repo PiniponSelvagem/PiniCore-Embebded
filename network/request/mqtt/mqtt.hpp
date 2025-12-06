@@ -13,16 +13,16 @@
 
 #pragma once
 
-#ifndef _PINICORE_MQTT_H
-#define _PINICORE_MQTT_H
+#ifndef _PINICORE_MQTT_H_
+#define _PINICORE_MQTT_H_
 
 #include <stdint.h>
 #include <functional>
 #include <Client.h>
 #include <PubSubClient.h>
 
-#define PINICORE_MQTT_BUFFER_SIZE 1024
-#define PINICORE_MQTT_SUBSCRIBE_SIZE_MAX 64 ///> Maximum number of topics that can be subscribed. I want to avoid using 'malloc'.
+#define MQTT_BUFFER_SIZE 1024
+#define MQTT_SUBSCRIBE_SIZE_MAX 64 ///> Maximum number of topics that can be subscribed. I want to avoid using 'malloc'.
 
 // user callbacks
 typedef std::function<void(void)> MqttOnConnectCallback;                    ///> Callback for on connect/reconnect.
@@ -181,7 +181,7 @@ class MQTT {
 
         PubSubClient m_mqttClient;
         const char* m_clientId;
-        char m_buffer[PINICORE_MQTT_BUFFER_SIZE+1];  ///> Buffer used to place a null terminated payload since PubSubClient does not null terminate it.
+        char m_buffer[MQTT_BUFFER_SIZE+1];  ///> Buffer used to place a null terminated payload since PubSubClient does not null terminate it.
 
         const char* m_username;
         const char* m_password;
@@ -199,7 +199,7 @@ class MQTT {
         MqttOnDisconnectCallback  m_onDisconnectCallback  = NULL;
         MqttOnSubscribeCallback   m_onSubscribeCallback   = NULL;
         MqttOnUnsubscribeCallback m_onUnsubscribeCallback = NULL;
-        MqttOnTopicCallback_t m_onTopicCallbacks[PINICORE_MQTT_SUBSCRIBE_SIZE_MAX] = {};
+        MqttOnTopicCallback_t     m_onTopicCallbacks[MQTT_SUBSCRIBE_SIZE_MAX] = {};
 };
 
-#endif // _PINICORE_MQTT_H
+#endif // _PINICORE_MQTT_H_

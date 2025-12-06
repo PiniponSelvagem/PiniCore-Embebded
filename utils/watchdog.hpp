@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef _PINICORE_WATCHDOG_H
-#define _PINICORE_WATCHDOG_H
+#ifndef _PINICORE_WATCHDOG_H_
+#define _PINICORE_WATCHDOG_H_
 
 #include <stdint.h>
 
@@ -39,4 +39,4 @@ void watchdogDisable();
  */
 void watchdogIamAlive();
 
-#endif // _PINICORE_WATCHDOG_H
+#endif // _PINICORE_WATCHDOG_H_

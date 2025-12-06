@@ -25,8 +25,8 @@
   *     https://github.com/alkonosst/SSLClientESP32.git#v2.0.3
   *     arduino-libraries/ArduinoHttpClient@^0.6.1
   */
-#ifndef _PINICORE_H
-#define _PINICORE_H
+#ifndef _PINICORE_H_
+#define _PINICORE_H_
 
 #include "utils/log.hpp"
 #include "utils/time.hpp"
@@ -34,10 +34,16 @@
 #include "utils/memory.hpp"
 
 #include "system/board.hpp"
+#include "system/interrupt.hpp"
 
-#include "drivers/button/button.hpp"
-#include "drivers/led/led.hpp"
-#include "drivers/rotaryencoder/rotaryencoder.hpp"
+#include "drivers/io/button/button.hpp"
+#include "drivers/io/led/led.hpp"
+#include "drivers/io/rotaryencoder/rotaryencoder.hpp"
+/*
+#include "drivers/io/relays/irelays.hpp"
+#include "drivers/io/relays/rl_virtual.hpp"
+*/
+
 #include "drivers/sensors/lm35.hpp"
 #include "drivers/sensors/dht.hpp"
 
@@ -50,4 +56,4 @@
 
 #include "network/request/mqtt/mqtt.hpp"
 
-#endif /* _PINICORE_H */
+#endif /* _PINICORE_H_ */

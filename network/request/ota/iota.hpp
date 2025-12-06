@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef _PINICORE_IOTA_H
-#define _PINICORE_IOTA_H
+#ifndef _PINICORE_IOTA_H_
+#define _PINICORE_IOTA_H_
 
 #include <stdint.h>
 #include <functional>
@@ -31,10 +31,10 @@ enum EOTAUpdateStatus {
     OTA_CLIENT_ERROR
 };
 
-#define PINICORE_OTA_ONPROGRESS_SIGNATURE std::function<void(uint32_t downloadedBytes, uint32_t totalBytes)> ///> Called during update download.
+#define OTA_ONPROGRESS_SIGNATURE std::function<void(uint32_t downloadedBytes, uint32_t totalBytes)> ///> Called during update download.
 
-#define PINICORE_OTA_SHA256_MAX_SIZE         32
-#define PINICORE_OTA_SHA256_MAX_SIZE_CHAR    (PINICORE_OTA_SHA256_MAX_SIZE*2)
+#define OTA_SHA256_MAX_SIZE         32
+#define OTA_SHA256_MAX_SIZE_CHAR    (OTA_SHA256_MAX_SIZE*2)
 
 class IOTA {
     public:
@@ -51,7 +51,7 @@ class IOTA {
          * @param   onProgress Function to be called during firmware download. Signature: 'onProgress(uint32_t downloadedBytes, uint32_t totalBytes)'.
          * @note    Configuring this callback is optional.
          */
-        void setProgressCallback(PINICORE_OTA_ONPROGRESS_SIGNATURE onProgress);
+        void setProgressCallback(OTA_ONPROGRESS_SIGNATURE onProgress);
 
         /**
          * @brief   Check for updates based on the current firmware version.
@@ -109,12 +109,12 @@ class IOTA {
          */
         EOTAUpdateStatus download(
             Client* client, const char* updateMD5, uint32_t totalSize,
-            char calculatedSHA256[PINICORE_OTA_SHA256_MAX_SIZE_CHAR]
+            char calculatedSHA256[OTA_SHA256_MAX_SIZE_CHAR]
         );
 
         EOTAUpdateStatus install(
             const char* updateMD5, const char* updateSHA256,
-            char calculatedSHA256[PINICORE_OTA_SHA256_MAX_SIZE_CHAR]
+            char calculatedSHA256[OTA_SHA256_MAX_SIZE_CHAR]
         );
 
 
@@ -132,7 +132,7 @@ class IOTA {
         int m_currFirmware;
         const char* m_serial;
 
-        PINICORE_OTA_ONPROGRESS_SIGNATURE m_onProgress;  ///> The callback called during download progress. Use \ref 'onProgress' since that will check if this function pointer is valid.
+        OTA_ONPROGRESS_SIGNATURE m_onProgress;  ///> The callback called during download progress. Use \ref 'onProgress' since that will check if this function pointer is valid.
 };
 
-#endif // _PINICORE_IOTA_H
+#endif // _PINICORE_IOTA_H_

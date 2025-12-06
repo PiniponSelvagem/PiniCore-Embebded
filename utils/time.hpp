@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef _PINICORE_TIME_H
-#define _PINICORE_TIME_H
+#ifndef _PINICORE_TIME_H_
+#define _PINICORE_TIME_H_
 
 #include <esp_timer.h>
 
@@ -26,4 +26,4 @@ inline uint64_t getMillis() {
     return static_cast<uint64_t>(esp_timer_get_time()) / 1000LL;
 }
 
-#endif // _PINICORE_TIME_H
+#endif // _PINICORE_TIME_H_

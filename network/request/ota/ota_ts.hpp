@@ -13,15 +13,15 @@
 
 #pragma once
 
-#ifndef _PINICORE_OTATS_H
-#define _PINICORE_OTATS_H
+#ifndef _PINICORE_OTATS_H_
+#define _PINICORE_OTATS_H_
 
 #include "iota.hpp"
 #include <stdint.h>
 
-#define PINICORE_OTA_TS_AVAILABLEUPDATE_URI_MAX_SIZE 128
+#define OTA_TS_AVAILABLEUPDATE_URI_MAX_SIZE 128
 
-class OTATS : public IOTA{
+class OTATS : public IOTA {
     public:
         /**
          * @brief	OTA constructor.
@@ -68,7 +68,7 @@ class OTATS : public IOTA{
         const char* m_password;
         const char* m_certificate;
 
-        char m_uriAvailableUpdate[PINICORE_OTA_TS_AVAILABLEUPDATE_URI_MAX_SIZE];
+        char m_uriAvailableUpdate[OTA_TS_AVAILABLEUPDATE_URI_MAX_SIZE];
 };
 
-#endif // _PINICORE_OTATS_H
+#endif // _PINICORE_OTATS_H_

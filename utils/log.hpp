@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef _PINICORE_LOG_H
-#define _PINICORE_LOG_H
+#ifndef _PINICORE_LOG_H_
+#define _PINICORE_LOG_H_
 
 #include <stdarg.h>
 #include "time.hpp"
@@ -123,4 +123,4 @@ inline void _plog_impl(const char* level, const char* klass, const char* fmt, ..
 
 
 
-#endif // _PINICORE_LOG_H
+#endif // _PINICORE_LOG_H_

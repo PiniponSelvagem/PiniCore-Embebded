@@ -13,14 +13,14 @@
 
 #pragma once
 
-#ifndef _PINICORE_WIFI_H
-#define _PINICORE_WIFI_H
+#ifndef _PINICORE_WIFI_H_
+#define _PINICORE_WIFI_H_
 
 #include "inetwork.hpp"
 #include <WiFi.h>
 
-#define PINICORE_WIFI_SSID_SIZE_MAX 32
-#define PINICORE_WIFI_PASS_SIZE_MAX 64
+#define WIFI_SSID_SIZE_MAX 32
+#define WIFI_PASS_SIZE_MAX 64
 
 /**
  * @brief WiFi configuration data.
@@ -140,16 +140,16 @@ class WiFiComm : public INetwork {
     private:
         WiFiClient m_client;
 
-        char m_ssid[PINICORE_WIFI_SSID_SIZE_MAX];   ///< SSID used in 'connect'.
-        char m_pass[PINICORE_WIFI_PASS_SIZE_MAX];   ///< PASS used in 'connect'.
+        char m_ssid[WIFI_SSID_SIZE_MAX];   ///< SSID used in 'connect'.
+        char m_pass[WIFI_PASS_SIZE_MAX];   ///< PASS used in 'connect'.
 
-        char m_ssidAP[PINICORE_WIFI_SSID_SIZE_MAX]; ///< SSID used in 'apConnect'.
-        char m_passAP[PINICORE_WIFI_PASS_SIZE_MAX]; ///< PASS used in 'apConnect'.
-        bool m_isHiddenAP;                          ///< AP hidden state used in 'apConnect'.
+        char m_ssidAP[WIFI_SSID_SIZE_MAX]; ///< SSID used in 'apConnect'.
+        char m_passAP[WIFI_PASS_SIZE_MAX]; ///< PASS used in 'apConnect'.
+        bool m_isHiddenAP;                 ///< AP hidden state used in 'apConnect'.
 
 
         bool m_isActiveStation = false; ///< True when WiFi using station mode.
         bool m_isActiveAP = false;      ///< True when WiFi AP is active.
 };
 
-#endif /* _PINICORE_WIFI_H */
+#endif /* _PINICORE_WIFI_H_ */

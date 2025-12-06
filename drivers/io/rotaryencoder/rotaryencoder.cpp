@@ -41,11 +41,11 @@ const encoderType encoderTypes[] {
 };
 
 
-RotaryEncoder::RotaryEncoder(uint8_t pin0, uint8_t pin1, RotaryEncoderType typeEncoder) {
-    this->m_pos = 0;
-    this->m_pin0 = pin0;
-    this->m_pin1 = pin1;
-    this->m_encoderType = encoderTypes[typeEncoder];
+void RotaryEncoder::init(uint8_t pin0, uint8_t pin1, RotaryEncoderType typeEncoder) {
+    m_pos = 0;
+    m_pin0 = pin0;
+    m_pin1 = pin1;
+    m_encoderType = encoderTypes[typeEncoder];
 
     // start with position 0;
     m_oldState         = 0;
@@ -54,9 +54,7 @@ RotaryEncoder::RotaryEncoder(uint8_t pin0, uint8_t pin1, RotaryEncoderType typeE
     m_detentCounter    = 0;
     m_positionTimePrev = 0;   // for first startup avoid calculation of a high speed, m_positionTimePrev
     m_positionTime     = 500; // and m_positionTime must be initialized to avoid that they have the same value
-}
 
-void RotaryEncoder::init() {
     pinMode(m_pin0, INPUT_PULLUP);
     pinMode(m_pin1, INPUT_PULLUP);
 }
@@ -118,7 +116,6 @@ void RotaryEncoder::tick() {
     }
 
     if (m_oldState != thisState) {
-
         if (m_detentCounter > ROTENC_FAST_TRIGGER) { // at minimum X detents have to be detected before fast step can be detected
             speed = ROTENC_FAST_SPEED;
         } else {

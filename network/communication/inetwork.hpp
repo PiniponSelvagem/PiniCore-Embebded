@@ -13,8 +13,8 @@
 
 #pragma once
 
-#ifndef _PINICORE_INETWORK_H
-#define _PINICORE_INETWORK_H
+#ifndef _PINICORE_INETWORK_H_
+#define _PINICORE_INETWORK_H_
 
 #include <stdint.h>
 #include <Client.h>
@@ -86,4 +86,4 @@ class INetwork {
         virtual bool isConnected() const = 0;
 };
 
-#endif /* _PINICORE_INETWORK_H */
+#endif /* _PINICORE_INETWORK_H_ */
