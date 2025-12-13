@@ -38,7 +38,7 @@ void MobileComm::maintain() {
 
 bool MobileComm::connect() {
     m_isActive = true;
-    m_provider[0] = 0; // Clear provider network name since no longer connected
+    m_provider[0] = '\0'; // Clear provider network name since no longer connected
 
     LOG_D(PINICORE_TAG_MOBILE, "Starting modem");
     if (!m_modem.restart()) {

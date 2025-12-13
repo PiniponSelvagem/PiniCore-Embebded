@@ -60,6 +60,7 @@ void DHT::read() {
     }
 
     uint32_t cycles[80];
+    int errorState = 0; // 0 -> no error, 1 -> timeout wait for low, 2 -> timeout wait for high
     {
         // End the start signal by setting data line high for 40 microseconds.
         pinMode(m_pin, INPUT_PULLUP);
@@ -71,17 +72,18 @@ void DHT::read() {
 
         // Turn off interrupts temporarily because the next sections
         // are timing critical and we don't want any interruptions.
+        // Dont do serial prints here, otherwise ESP will panic.
         AutoDisableInterrupt lock;
 
         // First expect a low signal for ~80 microseconds followed by a high signal
         // for ~80 microseconds again.
         if (expectPulse(LOW) == UINT32_MAX) {
-            LOG_W(PINICORE_TAG_DHT, "Timeout waiting for start signal low pulse");
-            return;
+            errorState = 1;
+            goto LABEL_EXIT_W_ERROR;
         }
         if (expectPulse(HIGH) == UINT32_MAX) {
-            LOG_W(PINICORE_TAG_DHT, "Timeout waiting for start signal high pulse");
-            return;
+            errorState = 2;
+            goto LABEL_EXIT_W_ERROR;
         }
 
         // Now read the 40 bits sent by the sensor.  Each bit is sent as a 50
@@ -96,8 +98,21 @@ void DHT::read() {
             cycles[i] = expectPulse(LOW);
             cycles[i + 1] = expectPulse(HIGH);
         }
-        interrupts();
     } // Timing critical code is now complete.
+
+LABEL_EXIT_W_ERROR:
+    switch (errorState) {
+        case 0:
+            break;
+        case 1:
+            LOG_W(PINICORE_TAG_DHT, "Timeout waiting for start signal low pulse");
+            return;
+        case 2:
+            LOG_W(PINICORE_TAG_DHT, "Timeout waiting for start signal high pulse");
+            return;
+        default:
+            break;
+    }
 
     // Inspect pulses and determine which ones are 0 (high state cycle count < low
     // state cycle count), or 1 (high state cycle count > low state cycle count).

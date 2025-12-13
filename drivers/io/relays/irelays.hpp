@@ -18,10 +18,11 @@
 
 #include <stdint.h>
 #include <functional>
+#include <Adafruit_MCP23X17.h>
 
 #define RELAYS_MAX 256  ///> Maximum number of total relays supported by the library.
-#define RELAYS_STORAGE_SIZE     (sizeof(uint32_t)*8)    ///> Size in bits of the type uses to store relays state.
-#define RELAYS_STATE_SIZE_MAX   (RELAYS_MAX / RELAYS_STORAGE_SIZE) ///> Size of the \ref 'm_relaysState' array.
+#define RELAYS_STORAGE_BIT_SIZE (sizeof(uint32_t)*8)    ///> Size in bits of the type uses to store relays state.
+#define RELAYS_STATE_SIZE_MAX   (RELAYS_MAX / RELAYS_STORAGE_BIT_SIZE) ///> Size of the \ref 'm_relaysState' array.
 
 // user callbacks
 typedef std::function<void(uint8_t module, uint8_t relay, bool state)> RelaysOnRelayCallback; ///> This module changed a relay to a new state.
@@ -30,14 +31,6 @@ typedef std::function<void(uint8_t module, bool state)> RelaysOnModuleCallback; 
 class IRelays {
     public:
         virtual ~IRelays() = default;
-
-        /**
-         * @brief	Initializes the configured relays.
-         * @param	modules: Number of modules that contain the relays.
-         * @param	relaysPerModule: Number of relays that each module contain.
-         * @note	This function must be called prior to any other Relays functions.
-         */
-        void init(uint8_t modules, uint8_t relaysPerModule);
 
         /**
          * @brief   Set a relay to a new state.
@@ -63,6 +56,18 @@ class IRelays {
         const int getActiveCount();
 
         /**
+         * @brief   Get the maximum number of modules supported by the hardwre.
+         * @return  Count of max modules supported.
+         */
+        const int getModulesMaxSupported();
+
+        /**
+         * @brief   Get number of relays per module.
+         * @return  Count of relays per module.
+         */
+        const int getRelaysPerModule();
+
+        /**
          * @brief   Check if a module is connected.
          * @param   module Module index.
          * @return  Module connected status.
@@ -82,23 +87,46 @@ class IRelays {
     
 
     protected:
+        /**
+         * @brief   Safely call 'onModule' callback.
+         * @param   module Module index.
+         * @param   state New connection status of the module.
+         */
+        void _onModule(uint8_t module, bool state);
+
+        /**
+         * @brief   Set the internal relays state data structure of a module to all off.
+         * @param   module Module index.
+         * @note    Useful example: module 3 is disconnected, call this function to reset the
+         *          library internal state for this module to all off.
+         */
+        void resetModuleState(uint8_t module);
+
+
         uint8_t p_modules;          ///> Number of modules configured.
         uint8_t p_relaysPerModule;  ///> Number of relays per module.
 
 
     private:
         /**
+         * @brief   Safely call 'onRelay' callback.
+         * @param   module Module index.
+         * @param   relay Relay index inside the module.
+         * @param   state New state of the relay.
+         */
+        void _onRelay(uint8_t module, uint8_t relay, bool state);
+
+        /**
          * @brief   Initializes the relay modules.
-         * @note    It is guaranteed that 'p_modules' and 'p_relaysPerModule' are set before this
-         *          function is called.
+         * @warning This function is required to initialize the variables 'p_modules' and 'p_relaysPerModule'.
          */
         virtual void initModules() = 0;
 
         /**
-         * @brief   Sends the command to the hardware
-         * @param   module The module id
-         * @param   relay The relay id in the module
-         * @param   state The state of the relay to be set to
+         * @brief   Sends the command to the hardware.
+         * @param   module The module id.
+         * @param   relay The relay id in the module.
+         * @param   state The state of the relay to be set to.
          * @return  True if the relay changed to the new state, false otherwise.
          * @note    It is not necessary for this function to check if 'module' and 'relay' are within valid
          *          range, since \ref 'IRelays' class will do that check before calling it.
@@ -111,18 +139,21 @@ class IRelays {
         void updateActiveCount();
 
         /**
-         * @brief   Safely call 'onRelay' callback.
-         * @param   module Module index.
-         * @param   relay Relay index inside the module.
-         * @param   state New state of the relay.
+         * @brief   Calcuate the bit position on th e \ref 'm_relaysState' of the relay for a particular module.
+         * @param   module The index of the module.
+         * @param   relay The index of the relay in that module.
+         * @param   wordIndex Return value, the calculated index in the \ref 'm_relaysState'.
+         * @param   bitIndex Return value, the calculated bit index in the wordIndex.
+         * @return  True if is valid, false otherwise.
+         * @warning Does NOT validate if module and relay are valid, only if the resulting globalIndex is valid
+         *          for the further internal calculations.
          */
-        void _onRelay(uint8_t module, uint8_t relay, bool state);
+        bool calculateRelayIndex(uint8_t module, uint8_t relay, uint16_t* wordIndex, uint8_t* bitIndex);
+
         /**
-         * @brief   Safely call 'onModule' callback.
-         * @param   module Module index.
-         * @param   state New connection status of the module.
+         * @brief   Prints to serial using LOG the entire 'm_relaysState' array in binary.
          */
-        void _onModule(uint8_t module, bool state);
+        void debugRelaysState();
 
 
         int m_relaysActiveCount = 0;

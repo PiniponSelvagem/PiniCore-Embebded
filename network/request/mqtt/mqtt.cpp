@@ -116,7 +116,7 @@ void MQTT::publish(const char* topic, const char* payload, const bool retain) {
 
 void MQTT::callback(char* topic, uint8_t* payload, unsigned int length) {
     strncpy(m_buffer, (char*)payload, length);
-    m_buffer[length] = 0;
+    m_buffer[length] = '\0';
     LOG_D(PINICORE_TAG_MQTT_CB, "Received: [topic: %s] [payload: %s] [length: %d]", topic, m_buffer, length);
     
     for (int i=0; i<MQTT_SUBSCRIBE_SIZE_MAX; ++i) {

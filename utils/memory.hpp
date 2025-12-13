@@ -1,7 +1,7 @@
 /**
-* @file		memory.hpp
-* @brief	Helper functions to make some memory operations easier to handle.
-* @author	PiniponSelvagem
+* @file     memory.hpp
+* @brief    Helper functions to make some memory operations easier to handle.
+* @author   PiniponSelvagem
 *
 * Copyright(C) PiniponSelvagem
 *

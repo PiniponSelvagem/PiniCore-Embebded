@@ -1,6 +1,7 @@
 /**
-* @file		rl_virtual.hpp
-* @brief	Virtual relays implementation, useful to test logic without hardware.
+* @file		rl_x16blue.hpp
+* @brief	Replays implementation for the ESP32-Relay-X16 board with 16 relays.
+*           More information at: https://devices.esphome.io/devices/esp32-relay-x16/
 * @author	PiniponSelvagem
 *
 * Copyright(C) PiniponSelvagem
@@ -13,29 +14,27 @@
 
 #pragma once
 
-#ifndef _PINICORE_IO_RELAYS_VIRTUAL_H_
-#define _PINICORE_IO_RELAYS_VIRTUAL_H_
+#ifndef _PINICORE_IO_RELAYS_X16BLUE_H_
+#define _PINICORE_IO_RELAYS_X16BLUE_H_
 
 #include <stdint.h>
 #include "irelays.hpp"
 
-class RelaysVirtual : public IRelays {
+class RelaysX16Blue : public IRelays {
     public:
         /**
          * @brief   Initializes the configured relays.
-         * @param   modules The number of modules.
-         * @param   relaysPerModule The number of relays per module, of the largest one if they are different sizes.
+         * @param   pinEnable Pin to enable the shift register output.
+         * @param   pinLatch Pin that controls the latch signal for updating the relay states.
+         * @param   pinClock Pin used to clock data into the shift register.
+         * @param   pinData Pin used to shift relay state data into the register.
          * @note    This function must be called prior to any other Relays functions.
          */
-        void init(uint8_t modules, uint8_t relaysPerModule);
-
-        /**
-         * @brief   Set a new configuration for virtual modules.
-         * @param   modules The number of modules.
-         * @param   relaysPerModule The number of relays per module, of the largest one if they are different sizes.
-         * @warning Only call this function when all relays are off, otherwise unexpected behaviour will occur.
-         */
-        void setModules(uint8_t modules, uint8_t relaysPerModule);
+        void init(
+            uint8_t pinEnable = 5, uint8_t pinLatch = 12,
+            uint8_t pinClock = 13, uint8_t pinData = 14,
+            bool isActiveLow = false
+        );
 
         /**
          * @brief   Check if a module is connected.
@@ -62,6 +61,12 @@ class RelaysVirtual : public IRelays {
          *          range, since \ref 'IRelays' class will do that check before calling it.
          */
         bool setHardware(uint8_t module, uint8_t relay, bool state) override;
+
+
+        uint8_t m_pinLatch;
+        uint8_t m_pinClock;
+        uint8_t m_pinData;
+        bool m_isActiveLow;
 };
 
-#endif // _PINICORE_IO_RELAYS_VIRTUAL_H_
+#endif // _PINICORE_IO_RELAYS_X16BLUE_H_

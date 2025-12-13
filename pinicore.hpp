@@ -42,9 +42,13 @@
 
 #include "drivers/io/relays/irelays.hpp"
 #include "drivers/io/relays/rl_virtual.hpp"
+#include "drivers/io/relays/rl_ts.hpp"
+#include "drivers/io/relays/rl_x16blue.hpp"
 
 #include "drivers/sensors/lm35.hpp"
 #include "drivers/sensors/dht.hpp"
+
+#include "storage/storage.hpp"
 
 #include "network/communication/inetwork.hpp"
 #include "network/communication/wifi.hpp"

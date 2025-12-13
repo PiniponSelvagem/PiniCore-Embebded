@@ -49,7 +49,7 @@ bool OTATS::checkUpdate() {
 
     char body[OTA_TS_CHECKUPDATE_BUFFER_MAX_SIZE];
     size_t bodySize = http.read((uint8_t*)body, OTA_TS_CHECKUPDATE_BUFFER_MAX_SIZE);
-    body[bodySize] = 0; // ensure null termination
+    body[bodySize] = '\0'; // ensure null termination
 
     LOG_D(PINICORE_TAG_OTA_TS, "Received: [status: %d] [body (%d): %s]", status, bodySize, body);
     if (status == 404) {
