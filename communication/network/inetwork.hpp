@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <Client.h>
 
-enum ENetworkType {
+enum ENetworkType : uint8_t {
     NET_WIFI,
     NET_MOBILE,
 };

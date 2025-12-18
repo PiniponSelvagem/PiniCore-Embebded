@@ -19,6 +19,11 @@
  */
 
 /**
+ * Useful website to better organize a C struct:
+ * @see https://padding-split.vercel.app/
+ */
+
+/**
   * Dependencies:
   * lib_deps = 
   *     vshymanskyy/TinyGSM@^0.12
@@ -48,15 +53,17 @@
 #include "drivers/sensors/lm35.hpp"
 #include "drivers/sensors/dht.hpp"
 
+#include "drivers/communication/lora.hpp"
+
 #include "storage/storage.hpp"
 
-#include "network/communication/inetwork.hpp"
-#include "network/communication/wifi.hpp"
-#include "network/communication/mobile.hpp"
+#include "communication/network/inetwork.hpp"
+#include "communication/network/wifi.hpp"
+#include "communication/network/mobile.hpp"
 
-#include "network/request/ota/iota.hpp"
-#include "network/request/ota/ota_ts.hpp"
+#include "communication/network/request/ota/iota.hpp"
+#include "communication/network/request/ota/ota_ts.hpp"
 
-#include "network/request/mqtt/mqtt.hpp"
+#include "communication/network/request/mqtt/mqtt.hpp"
 
 #endif /* _PINICORE_H_ */

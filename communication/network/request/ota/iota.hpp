@@ -20,7 +20,7 @@
 #include <functional>
 #include <Client.h>
 
-enum EOTAUpdateStatus {
+enum EOTAUpdateStatus : uint8_t {
     OTA_FAILED,
     OTA_UPDATE_NOT_AVAILABLE,
     OTA_INSTALLED,

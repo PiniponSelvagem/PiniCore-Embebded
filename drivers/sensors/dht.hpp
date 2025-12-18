@@ -37,11 +37,11 @@
 
 #include <stdint.h>
 
-enum EDHT {
-    DHT_11=11,
-    DHT_12=12,
-    DHT_21=21,
-    DHT_22=22
+enum EDHT : uint8_t {
+    DHT_11 = 11,
+    DHT_12 = 12,
+    DHT_21 = 21,
+    DHT_22 = 22
 };
 
 /**
