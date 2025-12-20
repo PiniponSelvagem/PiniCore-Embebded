@@ -9,7 +9,9 @@
 
 #define PINICORE_TAG_OTA_TS "pcore_ota_ts"
 
-#define OTA_TS_HOST "ota.trigger.systems"
+#ifndef OTA_TS_HOST
+    #define OTA_TS_HOST "ota.piniturbosun.cc"
+#endif
 #define OTA_TS_PORT 443
 
 #define URI "/ota/check/?machineKey=%s&version=%d"
