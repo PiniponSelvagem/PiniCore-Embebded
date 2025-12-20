@@ -66,4 +66,6 @@
 
 #include "communication/network/request/mqtt/mqtt.hpp"
 
+#include "communication/radio/loracomm.hpp"
+
 #endif /* _PINICORE_H_ */

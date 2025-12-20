@@ -59,13 +59,19 @@ enum class ELoRaBandwidth : long {
 // user callbacks
 typedef std::function<void(const uint8_t* payload, size_t size, int rssi, float snr)> LoRaOnReceiveCallback; ///> Callback for on receive a message
 
-
 #define LORA_INIT_DEFAULT_SF    7
 #define LORA_INIT_DEFAULT_POWER 14
 #define LORA_INIT_DEFAULT_BAND  ELoRaBandwidth::LR_BW_125_KHZ
 
 #define LORA_RECEIVED_PACKET_MAX_SIZE   255     ///> Taken from 'LoRa' -> 'MAX_PKT_LENGTH'
 #define LORA_RECEIVED_PACKET_MAX_COUNT  8       ///> Max number of packets received that can queue before start dropping.
+
+typedef struct {
+    size_t size;
+    int rssi;
+    float snr;
+    uint8_t payload[LORA_RECEIVED_PACKET_MAX_SIZE];
+} LoRaReceived_t;
 
 class LoRaTxRx {
     public:
@@ -202,7 +208,7 @@ class LoRaTxRx {
          * @brief   Safely call 'onReceive' callback.
          * @param   payload Pointer to received message.
          * @param   size Size of the message received.
-         * @param   rssi Signal stregth.
+         * @param   rssi Signal strenght.
          * @param   snr Signal to noise ratio.
          */
         void _onReceive(const uint8_t* payload, size_t size, int rssi, float snr);
@@ -215,15 +221,7 @@ class LoRaTxRx {
         bool m_isActive = false;    ///> True if on idle/standby, false is on sleep.
 
         /** Receive payload handling variables **/
-        struct LoRaReceived {
-            size_t size;
-            int rssi;
-            float snr;
-            uint8_t payload[LORA_RECEIVED_PACKET_MAX_SIZE];
-        };
-        //
-        LoRaReceived m_packetReceived;
-        /****************************************/
+        LoRaReceived_t m_packetReceived;  ///> Packet received.
 
         /** Callbacks **/
         LoRaOnReceiveCallback m_onReceiveCallback = NULL;

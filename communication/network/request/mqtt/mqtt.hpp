@@ -121,7 +121,7 @@ class MQTT {
          */
         void onUnsubscribe(MqttOnUnsubscribeCallback callback);
         /**
-         * @brief   Registers a callback function to be called when the MQTT client receives a sepecific a topic.
+         * @brief   Registers a callback function to be called when the MQTT client receives a sepecific topic.
          * @param   topic The topic.
          * @param   callback The callback function with the signature void(const char* payload, const uint32_t length) to be registered.
          * @return  True if there was space in the internal 'm_onTopicCallbacks' array to add the topic, false if full and could not be added.
@@ -130,7 +130,7 @@ class MQTT {
         bool onTopic(const char* topic, MqttOnTopicCallback callback);
 
         /**
-         * @brief   Unregisters a callback function from being called when the MQTT client receives a sepecific a topic.
+         * @brief   Unregisters a callback function from being called when the MQTT client receives a sepecific topic.
          * @param   topic The topic.
          * @note    Will unsubscribe if the topic is currently subscribed.
          */
@@ -140,7 +140,7 @@ class MQTT {
          * @brief   Send payload to a topic.
          * @param   topic Index of the topic in the 'm_topicPublish' data structure to be used to publish the payload
          * @param   payload Payload to be sent, null terminated
-         * @param   retain True and will tell broker to retain teh message.
+         * @param   retain True and will tell broker to retain the message.
          */
         void publish(const char* topic, const char* payload, const bool retain);
 
