@@ -10,7 +10,7 @@ void MQTT::setClient(Client* client, const char* uniqueId) {
     m_mqttClient.setClient(*client);
     m_mqttClient.setBufferSize(MQTT_BUFFER_SIZE);
     m_mqttClient.setCallback([this](char* topic, byte* payload, unsigned int length) {
-        this->callback(topic, payload, length);
+        this->receiveCallback(topic, payload, length);
     });
     m_clientId = uniqueId;
 }
@@ -101,8 +101,7 @@ void MQTT::removeOnTopic(const char* topic) {
         MqttOnTopicCallback_t* onTopic = &m_onTopicCallbacks[i];
         if (strcmp(onTopic->topic, topic) == 0) {
             m_mqttClient.unsubscribe(topic);
-            onTopic->topic    = NULL;
-            onTopic->callback = NULL;
+            onTopic->topic = NULL;
             return;
         }
     }
@@ -114,7 +113,7 @@ void MQTT::publish(const char* topic, const char* payload, const bool retain) {
 }
 
 
-void MQTT::callback(char* topic, uint8_t* payload, unsigned int length) {
+void MQTT::receiveCallback(char* topic, uint8_t* payload, unsigned int length) {
     strncpy(m_buffer, (char*)payload, length);
     m_buffer[length] = '\0';    // I would like to find a better solution for this
     LOG_D(PINICORE_TAG_MQTT_CB, "Received: [topic: %s] [payload: %s] [length: %d]", topic, m_buffer, length);

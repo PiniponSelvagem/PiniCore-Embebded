@@ -20,13 +20,13 @@
 #include <functional>
 #include <Adafruit_MCP23X17.h>
 
-#define RELAYS_MAX 256  ///> Maximum number of total relays supported by the library.
-#define RELAYS_STORAGE_BIT_SIZE (sizeof(uint32_t)*8)    ///> Size in bits of the type uses to store relays state.
-#define RELAYS_STATE_SIZE_MAX   (RELAYS_MAX / RELAYS_STORAGE_BIT_SIZE) ///> Size of the \ref 'm_relaysState' array.
+#define RELAYS_MAX 256  // Maximum number of total relays supported by the library.
+#define RELAYS_STORAGE_BIT_SIZE (sizeof(uint32_t)*8)    // Size in bits of the type uses to store relays state.
+#define RELAYS_STATE_SIZE_MAX   (RELAYS_MAX / RELAYS_STORAGE_BIT_SIZE) // Size of the \ref 'm_relaysState' array.
 
 // user callbacks
-typedef std::function<void(uint8_t module, uint8_t relay, bool state)> RelaysOnRelayCallback; ///> This module changed a relay to a new state.
-typedef std::function<void(uint8_t module, bool state)> RelaysOnModuleCallback;               ///> This module connection status cahnged to a new state.
+typedef std::function<void(uint8_t module, uint8_t relay, bool state)> RelaysOnRelayCallback; // This module changed a relay to a new state.
+typedef std::function<void(uint8_t module, bool state)> RelaysOnModuleCallback;               // This module connection status cahnged to a new state.
 
 class IRelays {
     public:
@@ -103,8 +103,8 @@ class IRelays {
         void resetModuleState(uint8_t module);
 
 
-        uint8_t p_modules;          ///> Number of modules configured.
-        uint8_t p_relaysPerModule;  ///> Number of relays per module.
+        uint8_t p_modules;          // Number of modules configured.
+        uint8_t p_relaysPerModule;  // Number of relays per module.
 
 
     private:

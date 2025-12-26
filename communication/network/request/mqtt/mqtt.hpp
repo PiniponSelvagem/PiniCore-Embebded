@@ -22,14 +22,14 @@
 #include <PubSubClient.h>
 
 #define MQTT_BUFFER_SIZE 1024
-#define MQTT_SUBSCRIBE_SIZE_MAX 64 ///> Maximum number of topics that can be subscribed. I want to avoid using 'malloc'.
+#define MQTT_SUBSCRIBE_SIZE_MAX 64 // Maximum number of topics that can be subscribed. I want to avoid using 'malloc'.
 
 // user callbacks
-typedef std::function<void(void)> MqttOnConnectCallback;                    ///> Callback for on connect/reconnect.
-typedef std::function<void(void)> MqttOnDisconnectCallback;                 ///> Callback for on disconnect.
-typedef std::function<void(const char* topic)> MqttOnSubscribeCallback;     ///> Callback for on subscribe to a topic.
-typedef std::function<void(const char* topic)> MqttOnUnsubscribeCallback;   ///> Callback for on unsubscribe from a topic.
-typedef std::function<void(const char* payload, uint32_t length)> MqttOnTopicCallback;  ///> Callback for subscribed topic.
+typedef std::function<void(void)> MqttOnConnectCallback;                    // Callback for on connect/reconnect.
+typedef std::function<void(void)> MqttOnDisconnectCallback;                 // Callback for on disconnect.
+typedef std::function<void(const char* topic)> MqttOnSubscribeCallback;     // Callback for on subscribe to a topic.
+typedef std::function<void(const char* topic)> MqttOnUnsubscribeCallback;   // Callback for on unsubscribe from a topic.
+typedef std::function<void(const char* payload, uint32_t length)> MqttOnTopicCallback;  // Callback for subscribed topic.
 
 typedef struct {
     const char *topic;
@@ -152,7 +152,7 @@ class MQTT {
          * @param   payload The payload.
          * @param   length Size of the payload.
          */
-        void callback(char* topic, uint8_t* payload, unsigned int length);
+        void receiveCallback(char* topic, uint8_t* payload, unsigned int length);
 
         /**
          * @brief   Subscribe to all topics that were added in \ref 'onTopic'.
@@ -181,7 +181,7 @@ class MQTT {
 
         PubSubClient m_mqttClient;
         const char* m_clientId;
-        char m_buffer[MQTT_BUFFER_SIZE+1];  ///> Buffer used to place a null terminated payload since PubSubClient does not null terminate it.
+        char m_buffer[MQTT_BUFFER_SIZE+1];  // Buffer used to place a null terminated payload since PubSubClient does not null terminate it.
 
         const char* m_username;
         const char* m_password;

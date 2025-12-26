@@ -75,7 +75,7 @@ void LoRaTxRx::disable() {
 }
 
 void LoRaTxRx::send(const uint8_t* payload, size_t size) {
-    size_t safeSize = (size>LORA_RECEIVED_PACKET_MAX_SIZE) ? LORA_RECEIVED_PACKET_MAX_SIZE : size;
+    size_t safeSize = (size>LORA_PACKET_MAX_SIZE) ? LORA_PACKET_MAX_SIZE : size;
     LOG_T(PINICORE_TAG_LORA, "Preparing to send %lu bytes", safeSize);
     LoRa.beginPacket();
     LoRa.write(payload, safeSize);
@@ -88,7 +88,7 @@ void LoRaTxRx::send(const uint8_t* payload, size_t size) {
     ++m_statsPacketsSent;    
 }
 
-void LoRaTxRx::onReceive(LoRaOnReceiveCallback callback) {
+void LoRaTxRx::onReceive(LoRaTxRxOnReceiveCallback callback) {
     m_onReceiveCallback = callback;
 }
 
@@ -104,7 +104,7 @@ bool LoRaTxRx::receive() {
     int rssi  = LoRa.packetRssi();
     float snr = LoRa.packetSnr();
 
-    m_packetReceived.size = (size>LORA_RECEIVED_PACKET_MAX_SIZE) ? LORA_RECEIVED_PACKET_MAX_SIZE : size;
+    m_packetReceived.size = (size>LORA_PACKET_MAX_SIZE) ? LORA_PACKET_MAX_SIZE : size;
     m_packetReceived.rssi = rssi;
     m_packetReceived.snr  = snr;
 

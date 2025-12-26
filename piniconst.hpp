@@ -16,6 +16,6 @@
 #ifndef _PINICORE_CONST_H_
 #define _PINICORE_CONST_H_
 
-#define SerialAT Serial1    ///> Serial for AT commands, example GSM module
+#define SerialAT Serial1    // Serial for AT commands, example GSM module
 
 #endif /* _PINICORE_CONST_H_ */

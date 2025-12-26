@@ -18,8 +18,8 @@
 
 #include <LittleFS.h>
 
-#define STORAGE_DIR_SYSTEM               "/system"                     ///> Folder related to PiniCore system files.
-#define STORAGE_FILE_IDENTIFICATION      STORAGE_DIR_SYSTEM "/id.sys"  ///> Path to file that is used to identiofy the storage system.
+#define STORAGE_DIR_SYSTEM               "/system"                     // Folder related to PiniCore system files.
+#define STORAGE_FILE_IDENTIFICATION      STORAGE_DIR_SYSTEM "/id.sys"  // Path to file that is used to identiofy the storage system.
 #define STORAGE_IDENTIFICATION_MAX_BYTES 32
 
 

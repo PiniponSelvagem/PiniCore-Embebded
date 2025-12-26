@@ -57,20 +57,20 @@ enum class ELoRaBandwidth : long {
 };
 
 // user callbacks
-typedef std::function<void(const uint8_t* payload, size_t size, int rssi, float snr)> LoRaOnReceiveCallback; ///> Callback for on receive a message
+typedef std::function<void(const uint8_t* payload, size_t size, int rssi, float snr)> LoRaTxRxOnReceiveCallback; // Callback for on receive a message
 
 #define LORA_INIT_DEFAULT_SF    7
-#define LORA_INIT_DEFAULT_POWER 14
+#define LORA_INIT_DEFAULT_POWER 20
 #define LORA_INIT_DEFAULT_BAND  ELoRaBandwidth::LR_BW_125_KHZ
 
-#define LORA_RECEIVED_PACKET_MAX_SIZE   255     ///> Taken from 'LoRa' -> 'MAX_PKT_LENGTH'
-#define LORA_RECEIVED_PACKET_MAX_COUNT  8       ///> Max number of packets received that can queue before start dropping.
+#define LORA_PACKET_MAX_SIZE            255     // Taken from 'LoRa' -> 'MAX_PKT_LENGTH'
+#define LORA_RECEIVED_PACKET_MAX_COUNT  8       // Max number of packets received that can queue before start dropping.
 
 typedef struct {
     size_t size;
     int rssi;
     float snr;
-    uint8_t payload[LORA_RECEIVED_PACKET_MAX_SIZE];
+    uint8_t payload[LORA_PACKET_MAX_SIZE];
 } LoRaReceived_t;
 
 class LoRaTxRx {
@@ -170,7 +170,7 @@ class LoRaTxRx {
          * @brief   Registers a callback function to be called when a message is received client.
          * @param   callback The callback function with the signature void(const uint8_t* payload, uint32_t length, int rssi, float snr) to be registered.
          */
-        void onReceive(LoRaOnReceiveCallback callback);
+        void onReceive(LoRaTxRxOnReceiveCallback callback);
 
         /**
          * @brief   Statistics: number of bytes sent.
@@ -218,13 +218,13 @@ class LoRaTxRx {
         uint8_t m_txPower;
         ELoRaBandwidth m_bandwidth;
 
-        bool m_isActive = false;    ///> True if on idle/standby, false is on sleep.
+        bool m_isActive = false;    // True if on idle/standby, false is on sleep.
 
         /** Receive payload handling variables **/
-        LoRaReceived_t m_packetReceived;  ///> Packet received.
+        LoRaReceived_t m_packetReceived;  // Packet received.
 
         /** Callbacks **/
-        LoRaOnReceiveCallback m_onReceiveCallback = NULL;
+        LoRaTxRxOnReceiveCallback m_onReceiveCallback = NULL;
 
         /** Statistics **/
         uint32_t m_statsBytesSent       = 0;

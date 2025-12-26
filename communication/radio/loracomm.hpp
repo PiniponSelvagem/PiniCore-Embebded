@@ -18,69 +18,104 @@
 
 #include "drivers/communication/lora.hpp"
 
-#define LORACOMM_ONRECEIVE_SIZE_MAX 16  ///> Maximum number of tagIds that can be "subscribed". I want to avoid using 'malloc'.
+#define LORACOMM_INVALID_TAGID      UINT8_MAX   // Reserved tagId that is used to identify that a 'onReceive' callback is not set for that index.
 
-#define LORACOMM_SEND_PAYLOAD_MAX   (LORA_RECEIVED_PACKET_MAX_SIZE-sizeof(LoRaMessageHeader))   ///> Maximum number of bytes that can be sent, excluding header.
-#define LORACOMM_SEND_QUEUE_MAX     8   ///> Maximum number of payloads that can be on the send queue at one time.
-#define LORACOMM_SEND_RETRY_MAX     3   ///> Maximum number of retries before dropping if no ACK reply, when required.
+#define LORACOMM_ONRECEIVE_SIZE_MAX 16  // Maximum number of tagIds that can be "subscribed". I want to avoid using 'malloc'.
+
+#define LORACOMM_SEND_PAYLOAD_MAX   (LORA_PACKET_MAX_SIZE-sizeof(LoRaHeader_t))   // Maximum number of bytes that can be sent, excluding header.
+#define LORACOMM_SEND_QUEUE_MAX     16  // Maximum number of payloads that can be on the send queue at one time.
+#define LORACOMM_SEND_RETRY_MAX     3   // Maximum number of retries before dropping if no ACK reply, when required.
 
 //user callbacks
-typedef std::function<void(const uint8_t* payload, size_t size, int rssi, float snr)> LoRaOnReceiveCallback;
+typedef std::function<void(uint32_t radioId, const uint8_t* payload, size_t size, int rssi, float snr)> LoRaOnReceiveCallback;
 
 typedef struct {
-    const uint8_t tagId;
+    uint32_t bytesSent;
+    uint32_t bytesReceived;
+    uint32_t packetsSent;
+    uint32_t packetsReceived;
+} LoRaStatistics_t;
+
+typedef struct {
+    uint8_t tagId = LORACOMM_INVALID_TAGID;
     LoRaOnReceiveCallback callback;
 } LoRaOnReceiveCallback_t;
 
+#define LORACOMM_FLAG_IDX_IS_TERMINAL 0
+#define LORACOMM_FLAG_IDX_REQUIRE_ACK 1
+#define LORACOMM_FLAG_IDX_IS_ACK      2
 typedef struct {
-    uint32_t    checksum;
                 /**
-                 * bit 0 -> sender is Terminal (not Base Station / Gateway)
+                 * Payload checksum, excluding the header.
+                 * Excluding the header, allows for new flags and the usage of teh reserded bytes.
+                 * This way, controllers in older firmware can be supported for longer.
+                 * 
+                 * These bytes are also used to ACK a payload received, sued like a payload unique identifier.
+                 * The way that is used is:
+                 * 1 - controller 1 sends a payload with checksum 'xpto' and says that its payload requires ACK.
+                 * 2 - controller 2 receives the payload, validates the checksum.
+                 * 3 - controller 2 sends a reply ACK payload where its header is the usual and the content is only the 'xpto' checksum.
+                 * 4 - controller 1 receives, validates the payload checksum and then gets the 'xpto' cheksum and marks the payload transaction as completed.
+                 */
+    uint32_t    checksum;
+    uint32_t    radioId;
+                /**
+                 * bit 0 -> sender is Terminal (not Gateway)
                  * bit 1 -> requires ACK
-                 * bit 2 -> is ACK of a received payload with a particular 'seqId'
+                 * bit 2 -> is ACK of a received payload from a particular 'radioId' of a particular 'checksum' 
                  * bit [3..7] -> reserved
                  * 
                  * Example:
                  * 0b0000_0101
                  * - payload is from a Terminal
                  * - this payload does NOT require an ACK reply/payload
-                 * - is an ACK reply/payload to the 'seqId' found in this header
+                 * - is an ACK reply/payload to the 'radioId' found in this header and to the 'checksum' found in the content section
                  */
     uint8_t     flags;
     uint8_t     tagId;
-    uint16_t    seqId;
-    uint32_t    radioId;
+    /////////////////////
+    uint16_t    reserved = 0;   // Reserved: 2 bytes padding.
 } LoRaHeader_t;
 
 typedef struct {
     bool        requiresACK;
     uint8_t     retryCount;
-    uint16_t    seqId;
-    uint32_t    radioId;
-    uint8_t     payload[LORA_RECEIVED_PACKET_MAX_SIZE]; ///> Includes header.
+    uint64_t    nextRetryAt;
+    size_t      payloadSize;    // if == 0, then assume this element in the 'm_sendQueue' is empty
+    uint8_t     payload[LORA_PACKET_MAX_SIZE]; // Includes header, which can be accessed by using by casting this pointer to 'LoRaHeader_t*'.
 } LoRaSend_t;
 
+#define LORACOMM_SIGNAL_QUALITY_COUNT_MAX 64
+typedef struct {
+    uint64_t lastUpdateAt;
+    uint32_t radioId;
+    int rssi;
+    float snr;
+} LoRaSignalQuality_t;
 
-/**
- * TODO:    Should I rethink the decision below? (@warning)
- */
-/**
- * @warning All functions of 'LoRaTxRx' can and should be called, except 'onReceive'.
- *          That is because this 'LoRaComm' class sets its own 'LoRaTxRx::onReceive',
- *          replacing any previous 'LoRaTxRx::onReceive' from outside of 'LoRaComm'.
- *          This decision allows outside control of the LoRa hardware, without wrapping
- *          every single function.
- */
+
 class LoRaComm {
     public:
         /**
          * @brief   Initialize the LoRa communication layer.
-         * @param   lora Pointer to LoRa hardware driver.
-         * @param   isTerminal True when controller is a 'Terminal', false when is a 'Base Station'. Same analogy as a cellular network.
-         * @warning The LoRa driver must be initialized before calling this function.
+         * @param   pinMOSI SPI data input pin.
+         * @param   pinMISO SPI data output pin.
+         * @param   pinSCLK SPI clock pin.
+         * @param   pinCS Chip select pin.
+         * @param   pinReset Reset pin.
+         * @param   pinDIO0 Digital IO 0 pin.
+         * @param   carrierFrequency LoRa carrier frequency, see comment about 'usable radio frequencies' comment on the top of the LoRaTxRx class.
+         * @param   isTerminal True when controller is a 'Terminal', false when is a 'Gateway'; same analogy as a cellular network.
+         * @param   terminalRadioId RadioId, only used if 'isTerminal' == true, ignored if Gateway. Used to discard payloads that do not belong to this Terminal.
+         * @return  True if hardware found and initialized, false otherwise.
          * @note	This function must be called prior to any other LoraComm functions.
          */
-        void init(const LoRaTxRx* lora, bool isTerminal);
+        bool init(
+            uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCLK, uint8_t pinCS,
+            uint8_t pinReset, uint8_t pinDIO0,
+            uint16_t carrierFrequency,
+            bool isTerminal, uint32_t terminalRadioId
+        );
 
         /**
          * @brief   Value used by checksum calculation.
@@ -89,10 +124,68 @@ class LoRaComm {
         void setCryptoPhrase(uint8_t phrase);
 
         /**
+         * @brief   Control how long each symbol is transmitted.
+         * @param   sf Spreading factor range: [6,12], if outside will adjust to nearest value.
+         * @note    Lower Spreading Factor:  shorter range, higher data rate.
+         *          Higher Spreading Factor: longer range, lower data rate.
+         */
+        void setSpreadingFactor(uint8_t sf) { m_lora.setSpreadingFactor(sf); }
+
+        /**
+         * @brief   Control how loud to transmit.
+         * @param   power Power in dBm, range: [0, 20].
+         * @note    Lower power:  shorter range, higher battery life.
+         *          Higher power: longer range, lower battery life.
+         */
+        void setTxPower(uint8_t power) { m_lora.setTxPower(power); }
+
+        /**
+         * @brief   Control communication bandwidth.
+         * @param   bandwidth Bandwidth selection from \ref 'ELoRaBandwidth'.
+         * @note    Lower bandwidth:  longer range, lower data rate, longer airtime.
+         *          Higher bandwidth: shorter range, higher data rate, shorter airtime.
+         */
+        void setBandwidth(ELoRaBandwidth bandwidth) { m_lora.setBandwidth(bandwidth); }
+
+        /**
+         * @brief   Get current spreading factor.
+         * @return  Spreading factor value range: [6,12].
+         */
+        inline const uint8_t getSpreadingFactor() { return m_lora.getSpreadingFactor(); }
+
+        /**
+         * @brief   Get current transmit power.
+         * @return  Transmit power value range: [0,20].
+         */
+        inline const uint8_t getTxPower() { return m_lora.getTxPower(); }
+
+        /**
+         * @brief   Get current bandwidth.
+         * @return  Bandwidth in Hz.
+         */
+        inline const ELoRaBandwidth getBandwidth() { return m_lora.getBandwidth(); }
+
+        /**
          * @brief   Keeps the LoRa communication alive, if new payload, then calls the appropriate user callback for it.
          * @note    Call this function periodically to parse new received messages.
          */
         void maintain();
+
+        /**
+         * @brief   Idle/Standby the LoRa communication and device.
+         */
+        void enable();
+
+        /**
+         * @brief   Sleep the LoRa communication and device.
+         */
+        void disable();
+
+        /**
+         * @brief   Get LoRa communication and device state.
+         * @return  True if on idle/standby, false if on sleep.
+         */
+        inline const bool isEnabled() { return m_lora.isEnabled(); }
 
         /**
          * @brief   Registers a callback function to be called when the LoRa communication receives a sepecific tagId.
@@ -113,49 +206,120 @@ class LoRaComm {
          * @brief   Queues a payload to be sent over LoRa.
          * @param   radioId Radio identifier, also known as controller 'serial'.
          * @param   tagId Identifies the type of the payload.
+         * @param   requireAck True if should be acknowledged and retry if necessary, false send blindly once.
          * @param   payload Payload to be sent.
          * @param   size Size of the payload, up to \ref 'LORACOMM_SEND_PAYLOAD_MAX', if above will truncate.
          * @return  True if payload was queued for send, false if unable because send queue is full.
          */
-        bool send(uint32_t radioId, uint8_t tagId, const uint8_t* payload, size_t size);
+        bool send(uint32_t radioId, uint8_t tagId, bool requireAck, const uint8_t* payload, size_t size);
+
+        /**
+         * @brief   Get current LoRa hardware and communication statistics.
+         * @param   stats Pointer to struct that will place the statistics into.
+         */
+        void getStatistics(LoRaStatistics_t* stats);
 
 
     private:
         /**
-         * @brief   Safely call 'onReceive' callback.
-         * @param   tagId Identifies the type of the payload.
-         * @param   payload Payload received, excluding header.
+         * @brief   Validate, identify the tagId, and then safely call 'onReceive' callback.
+         * @param   payload Pointer to payload received.
          * @param   rssi Signal strenght.
          * @param   snr Signal to noise ratio.
          */
-        void _onReceive(uint8_t tagId, const uint8_t* payload, size_t size, int rssi, float snr);
+        void _onReceive(const uint8_t* payload, size_t size, int rssi, float snr);
+        
+        /**
+         * @brief   Queues a payload to be sent over LoRa.
+         * @param   radioId Radio identifier, also known as controller 'serial'.
+         * @param   tagId Identifies the type of the payload.
+         * @param   requireAck True if should be acknowledged and retry if necessary, false send blindly once.
+         * @param   isAck True if this is an acknowledging payload, false otherwise.
+         * @param   payload Payload to be sent.
+         * @param   size Size of the payload, up to \ref 'LORACOMM_SEND_PAYLOAD_MAX', if above will truncate.
+         * @return  True if payload was queued for send, false if unable because send queue is full.
+         */
+        bool _send(uint32_t radioId, uint8_t tagId, bool requireAck, bool isAck, const uint8_t* payload, size_t size);
+
+        /**
+         * @brief   Queues a acknowledge payload to be sent over LoRa.
+         * @param   radioId Radio identifier, also known as controller 'serial'.
+         * @param   tagId Identifies the type of the payload.
+         * @param   checksumOfReceived Checksum of the payload content received that requires acknowledge.
+         * @return  True if payload was queued for send, false if unable because send queue is full.
+         */
+        bool _sendAck(uint32_t radioId, uint8_t tagId, uint32_t checksumOfReceived);
+
+        /**
+         * @brief   Updates the signal quality data structure with latest data.
+         * @param   radioId RadioId of the controller that sent the payload.
+         * @param   rssi Signal strenght.
+         * @param   snr Signal to noise ratio.
+         */
+        void _updateSignalQuality(uint32_t radioId, int rssi, float snr);
+
+        /**
+         * @brief   Add to the send queue a payload to be sent.
+         * @param   requiresACK True if this payload should receive a ACK reply.
+         * @param   delay How long in millis to delay the send of this payload.
+         * @param   payloadSize Size in bytes of the entire payload, including header.
+         * @param   payload The entire payload, including header which can be accessed by casting this pointer to 'LoRaSend_t*'.
+         * @return  True if there was space and was added, false if queue is full of payload size above 'LORA_PACKET_MAX_SIZE'.
+         */
+        bool _queueSendAdd(bool requiresACK, uint64_t delay, size_t payloadSize, uint8_t* payload);
+
+        /**
+         * @brief   Remove a payload from the send queue.
+         * @param   sendElement Pointer to LoRaSend_t.
+         */
+        void _queueSendRemove(LoRaSend_t* sendElement);
+
+        /**
+         * @brief   Get the next payload ready to be sent, meaning that the appropriate time was reached.
+         * @return  Pointer to LoRaSend_t, NULL if send queue is empty.
+         */
+        LoRaSend_t* _queueSendGetReady();
 
 
-        bool m_isTerminal;      ///> True when controller is a 'Terminal', false when is a 'Base Station'. Same analogy as a cellular network. 
-        uint8_t m_cryptoPhrase; ///> Value used to add to the checksum calculation, if '0' then it will not be used and normal checksum will be calculated.
-        uint16_t m_seqId;       ///> Current sequence ID, used to remove payloads from send queue when a ACK is received, for the ones that require it.
+        LoRaTxRx m_lora;            // Hardware used for lora commuincation.
+        uint8_t m_cryptoPhrase;     // Value used to add to the checksum calculation, if '0' then it will not be used and normal checksum will be calculated.
+        bool m_isTerminal;          // True when controller is a 'Terminal', false when is a 'Gateway'. Same analogy as a cellular network. 
+        uint32_t m_terminalRadioId; // If isTerminal, then filter payloads only directed to my radioId.
 
-        /** Send queue **/
-        LoRaSend_t m_sendQueue[LORACOMM_SEND_QUEUE_MAX] = {};
+        /**
+         * @brief   Contains signal quality of previously received payloads for specific 'radioId's.
+         *          This helps to decide how long should the controller wait for a ACK.
+         *          Only used in Gateway mode, this is so that 2 Gateways do not colide with each other when sending payloads.
+         *          The one that received the weakest signal should wait longer, giving time to the stronger to send, and if the Terminal
+         *          replies with ACK to that in time, both will mark as sent successfully (even thought that the weakest one never sent the payload).
+         * @warning The logic that uses this data structure, intentionally does not support 'removing' elements (aka setting 'lastUpdateAt' = 0).
+         *          If that is done, duplicated elements can start appearing in this data structure.
+         */
+        LoRaSignalQuality_t m_signalQuality[LORACOMM_SIGNAL_QUALITY_COUNT_MAX] = {};
 
-        /** Send ACK queue **/
+        /**
+         * @brief   Queue that contains payloads to be sent.
+         *          If 'payloadSize' of an element is == 0, then assume that payload was already handled and that element being
+         *          free for next usage.
+         */
+        LoRaSend_t m_sendQueue[LORACOMM_SEND_QUEUE_MAX] = {};   // Queue that contains the payloads to be sent.
+
+        /** Queue with sents that require ACK **/
         /**
          * TODO:
          * - this queue should have the RSSI and SNR of the received payload that is going to reply with ACK
          * - if is a Terminal, it should just ACK
-         * - if it is a Base Station, it should calculate how long it should wait until it sends a reply ACK
+         * - if it is a Gateway, it should calculate how long it should wait until it sends a reply ACK
          *      - stronger RSSI and stronger SNR should reply faster
          *      - weaker RSSI and weaker SNR should reply slower
          *      - I think that SNR should have higher bias because the payload was received clearer compared to a weaker SNR
          *      - TIMEOUT should take this time into account, have a margin, and be aware of the payload air time
-         *      - It should listen to other Base Station ACK replies, and if is ACK for same Terminal, then drop it and mark is as ACKed
+         *      - It should listen to other Gateway ACK replies, and if is ACK for same Terminal, then drop it and mark is as ACKed
+         * - ACK is made based on both radioId and checksum
          */
 
         /** Callbacks **/
         LoRaOnReceiveCallback_t m_onReceiveCallbacks[LORACOMM_ONRECEIVE_SIZE_MAX] = {};
-
-        /** Hardware **/
-        LoRaTxRx* m_lora;   ///> Communication hardware.
 };
 
 #endif // _PINICORE_LORACOMM_H_

@@ -31,7 +31,7 @@ enum EOTAUpdateStatus : uint8_t {
     OTA_CLIENT_ERROR
 };
 
-#define OTA_ONPROGRESS_SIGNATURE std::function<void(uint32_t downloadedBytes, uint32_t totalBytes)> ///> Called during update download.
+#define OTA_ONPROGRESS_SIGNATURE std::function<void(uint32_t downloadedBytes, uint32_t totalBytes)> // Called during update download.
 
 #define OTA_SHA256_MAX_SIZE         32
 #define OTA_SHA256_MAX_SIZE_CHAR    (OTA_SHA256_MAX_SIZE*2)
@@ -118,7 +118,7 @@ class IOTA {
         );
 
 
-        int p_versionAvailable = -1;    ///> Firmware version available. Call 'checkUpdate' first, if still -1, then no update available. 
+        int p_versionAvailable = -1;    // Firmware version available. Call 'checkUpdate' first, if still -1, then no update available. 
 
 
     private:
@@ -132,7 +132,7 @@ class IOTA {
         int m_currFirmware;
         const char* m_serial;
 
-        OTA_ONPROGRESS_SIGNATURE m_onProgress;  ///> The callback called during download progress. Use \ref 'onProgress' since that will check if this function pointer is valid.
+        OTA_ONPROGRESS_SIGNATURE m_onProgress;  // The callback called during download progress. Use \ref 'onProgress' since that will check if this function pointer is valid.
 };
 
 #endif // _PINICORE_IOTA_H_

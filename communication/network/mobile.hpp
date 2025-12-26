@@ -131,11 +131,11 @@ class MobileComm : public INetwork {
         uint8_t p_pinTx;
         uint8_t p_pinRx;
 
-        bool p_connectedOnce = false;   ///> True when module connected at least once, meaning hardware is working.
+        bool p_connectedOnce = false;   // True when module connected at least once, meaning hardware is working.
 
 
     private:
-        bool m_isActive = false;    ///> If true, 'connect' was called and should reconnect if lost connection
+        bool m_isActive = false;    // If true, 'connect' was called and should reconnect if lost connection
 
         char m_apn[PINICORE_MOBILE_APN_SIZE_MAX];
         char m_simcardPin[PINICORE_MOBILE_SIMCARD_PIN_SIZE_MAX];
